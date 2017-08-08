@@ -1,0 +1,221 @@
+﻿@using SGW.Portal
+@model SGW.Portal.Models.ConditionModel
+@{
+    ViewBag.Title = "Definição de Condições";
+}
+
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+@using (Html.BeginForm("EditCondition", "Condition", FormMethod.Post, new { id = "EditConditionForm" }))
+{
+    <section class="contact">
+        <header>
+            <h3>Dados da Condição
+            @if (!Model.EditMode)
+            {
+                <strong> - @Html.ActionLink("Editar Condição", "EditCondition", "Condition", new { conditionId = Model.Id, displayonly = false }, null)</strong> 
+            }
+            <strong> - @Html.ActionLink("Lista de Condições", "ConditionList", "Condition")</strong> 
+
+            </h3>
+        </header>
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            @Html.HiddenFor(m => m.Id)
+            @{
+                string readonlyClass = "readonly";
+                string styleDisplayNone = "display:none;";
+                }
+
+            <fieldset>
+                <legend>Condição</legend>
+                <ol>
+                    <li>
+                        @Html.LabelFor(m => m.Name)
+                        @Html.TextBoxFor(m => m.Name, Model.EditMode ? (object)new { } : new { @readonly = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.Name, "Nome Inválido.")
+                    </li>
+                    <li>
+                        @Html.LabelFor(m => m.ConditionType)
+                        @Html.DropDownListFor(m => m.ConditionType, Model.ConditionTypes, Model.EditMode ? (object)new { } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.ConditionType, "Tipo de Condição Inválido.")
+                    </li>
+                    <li>
+                        @Html.LabelFor(m => m.EntityId)
+                        @Html.DropDownListFor(m => m.EntityId, Model.Entities, "Selecione", Model.EditMode ? (object)new { } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.EntityId, "Entidade Inválida.")
+                    </li>
+                    <li id="liSQLProcedure" class="fullline" style="@if (Model.ConditionType == "P" && Model.EditMode) { @styleDisplayNone } )">
+                        @Html.LabelFor(m => m.SQLProcedure)
+                        @Html.DropDownListFor(m => m.SQLProcedure, Model.Procedures)
+                        @Html.ValidationMessageFor(m => m.SQLProcedure, "Procedure SQL Inválida.")
+                    </li>
+                    <li id="liSQLCommand" class="fullline" style="@if (Model.ConditionType == "S" && Model.EditMode) { @styleDisplayNone } )">
+                        @Html.LabelFor(m => m.SQLCommand)
+                        @Html.TextAreaFor(m => m.SQLCommand)
+                        @Html.ValidationMessageFor(m => m.SQLCommand, "Comando SQL Inválido.")
+                    </li>
+                </ol>       
+            </fieldset>
+    </section>
+
+    <section id="manualCondition" class="contact" style="display:none">
+        <header>
+            <h2>Condição Manual - Critérios</h2>
+        </header>
+
+
+    @if (Model.EditMode)
+    {
+            <fieldset>
+                <legend>Critério</legend>
+                <ol>
+                    <li>
+                        @Html.Label("Campo")
+                        @Html.DropDownList("ddlField", Model.Fields, "Selecione")
+                    </li>
+                    <li>
+                        @Html.Label("Agrupador")
+                        @Html.TextBox("txtGroup")
+                    </li>
+                    <li class="fullline">
+                        @Html.Label("Operador")
+                        @Html.DropDownList("ddlOperator", Model.Operators)
+                    </li>
+                    <li class="fullline">
+                        @Html.Label("Valor")
+                        @Html.TextBox("txtValue")
+                        @Html.TextBox("txtValue2", "", new { style = "display:none;" })
+                    </li>
+                    <li class="fullline">
+                        <input id="btnAdd" type="button" value="Adicionar Critério" />
+                    </li>
+                </ol>
+            </fieldset>
+            }
+                <table id="container">
+                    <tr class="header">
+                        <th>Grupo</th>
+                        <th>Campo</th>
+                        <th>Operador</th>
+                        <th>Valor</th>
+                        <th>Ação</th>
+                    </tr>
+                    @foreach(var item in Model.ConditionDetails)
+                    {
+                        item.EditMode = Model.EditMode;
+                        @Html.Partial("Partial/NewConditionDetail", item)
+                    }
+                </table>
+        
+    </section>
+    if (Model.EditMode)
+    {
+        <input type="submit" value="Salvar" />
+    }
+ }
+<script>
+    $(function () {
+        $("#@Html.IdFor(m => m.EntityId)").change(function (e) {
+
+            paramData = { entityId: $('#@Html.IdFor(m => m.EntityId)').val() };
+
+            $.ajax({
+                type: "POST",
+                url: "/Condition/GetEntityFields",
+                data: JSON.stringify(paramData),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                error: function (data, errorThrown) {
+                    alert('error.');
+                },
+                success: function (data) {
+                    $("#ddlField").html(data.list);
+                }
+            });
+
+        });
+
+        $("#ddlOperator").change(function (e) {
+            if ($("#ddlOperator").val() == 'BETWEEN')
+                $("#txtValue2").removeAttr('style', 'display:none;');
+            else
+                $("#txtValue2").attr('style', 'display:none;').val('');
+        });
+
+        $("#@Html.IdFor(m => m.ConditionType)").change(function (e) {
+            type = $("#@Html.IdFor(m => m.ConditionType)").val();
+            if (type == 'S')
+            {
+                $("#liSQLCommand").removeAttr('style');
+                $("#liSQLProcedure").attr('style', 'display:none;');
+                $('#manualCondition').attr('style', 'display:none;');
+            }
+            else if (type == 'P')
+            {
+                $("#liSQLProcedure").removeAttr('style');
+                $("#liSQLCommand").attr('style', 'display:none;').val('');
+                $('#manualCondition').attr('style', 'display:none;');
+            }
+            else
+            {
+                $("#liSQLProcedure").attr('style', 'display:none;').val('');
+                $("#liSQLCommand").attr('style', 'display:none;').val('');
+                $('#manualCondition').removeAttr('style');
+            }
+        });
+
+        $('#@Html.IdFor(m => m.ConditionType)').change();
+
+        $("#btnAdd").click(function (e) {
+
+            paramData = { group: $('#txtGroup').val(), field: $('#ddlField').val(), op: $('#ddlOperator').val(), value: $('#txtValue').val(), value2: $('#txtValue2').val() };
+
+            $.ajax({
+                type: "POST",
+                url: "/Condition/AddConditionDetail",
+                data: JSON.stringify(paramData),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'html',
+                error: function (data, errorThrown) {
+                    alert('Código já adicionado.');
+                },
+                success: function (data) {
+                    $("#container").append(data);
+                    $('#txtGroup').val('');
+                    $('#ddlField').val('');
+                    $('#ddlOperator').val('=').change();
+                    $('#txtValue').val('');
+                    $('#txtValue2').val('');
+                }
+            });
+
+        });
+    });
+
+
+    function removeConditionDetail(c) {
+        paramData = { code: c };
+
+        $.ajax({
+            type: "POST",
+            url: "/Condition/RemoveConditionDetail",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            error: function (data, errorThrown) {
+                alert('Código inexistente.');
+            },
+            success: function (data) {
+                $('#tr_' + c).remove();
+            }
+        });
+
+    }
+
+</script>

@@ -1,0 +1,610 @@
+﻿@model SGW.Portal.Models.WorkflowStateModel
+@{
+    ViewBag.Title = "Definições de Workflow";
+}
+<style>
+#workflowStateContent {
+    -webkit-border-radius: 100%; 
+    -moz-border-radius: 100%; 
+}
+
+.divtransition {
+    position: absolute;
+    width: 1px;
+    background-color: black;
+    z-index: 0;
+    -webkit-transform-origin: top left;
+    -moz-transform-origin: top left;
+    -o-transform-origin: top left;
+    -ms-transform-origin: top left;
+    transform-origin: top left;
+}
+</style>
+
+<script type="text/javascript">
+    counter = 0;
+    var currentId;
+
+    function showStateDefinition(left, top, stateElementId, newState)
+    {
+
+        paramData = { leftPos: left, topPos: top, entityId: $('#@Html.IdFor(m => m.EntityId)').val(), stateName: stateElementId, workflowId: '@Model.WorkflowId.ToString()' };
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/AddStateDefinition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#stateDefinition').html(data);
+
+                $('#stateDefinition').dialog({
+                    autoOpen: false,
+                    height: 300,
+                    width: 650,
+                    modal: true,
+                    buttons:
+                    {
+                        "Salvar": function () {
+                            if (onSaveStateDefinition())
+                            {
+                                $(this).dialog("close");
+                                $('#stateDefinition').html('');
+                            }
+                        },
+                        "Cancelar": function () {
+                            if(newState)
+                                $('#'+ stateElementId).remove();
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#stateDefinition').dialog('open');
+            }
+        });
+
+    }
+    function addStateObj(left, top, originObj, initial, showDefinition, id, description)
+    {
+        counter++;
+        var element = originObj.clone();
+        element.addClass("tempclass");
+        $("#workflowStateContent").append(element);
+        var elementId = "clonediv" + counter;
+        $(".tempclass").attr("id", elementId);
+        elementId = "#" + elementId;
+        $(elementId).removeClass("tempclass");
+        $(elementId).removeClass("drag");
+        $(elementId).addClass("dragged");
+        $(elementId).css({
+            "left": left,
+            "top": top
+        });
+
+        //When an existiung object is dragged
+        $(elementId).draggable({
+            containment: 'parent',
+            stop: function (ev, ui) {
+                var pos = $(ui.helper).offset();
+
+                paramData = { leftPos: pos.left, topPos: pos.top, objName: ui.helper[0].id };
+                $.ajax({
+                    type: "POST",
+                    url: "/Workflow/SaveStatePosition",
+                    data: JSON.stringify(paramData),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    async: false,
+                    error: function (data, errorThrown) {
+                        alert('request failed :' + errorThrown);
+                    },
+                    success: function (data) {
+                        drawTransitions();
+                    }
+                });
+            }
+        });
+
+        if (initial)
+        {
+            $(elementId + ' img')[0].src = "../Images/initialState.png";
+        }
+
+        if (showDefinition)
+        {
+            showStateDefinition(left, top, elementId.replace('#',''), true);
+        }
+        else
+        {
+            $(elementId + ' label')[0].innerText = description;
+            $(elementId).attr('id', 'state_' + id);
+            elementId = '#state_' + id;
+        }
+
+        if ($(elementId).length > 0)
+        {
+            $(elementId).dblclick(function () {
+                showStateDefinition(left, top, $(this)[0].id, false);
+            });
+
+            $(elementId).mousedown(function(event) {
+                switch (event.which) {
+                    case 3:
+                        if (confirm('Você deseja remover este estado e suas tansições?'))
+                        {
+                            var elementId = $(this)[0].id;
+                            paramData = { stateId: $(this)[0].id.replace('state_','') };
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/RemoveState",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                async: false,
+                                error: function (data, errorThrown) {
+                                    alert('request failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#' + elementId).remove();
+                                    drawTransitions();
+                                }
+                            });
+                        }
+                        break;
+                    default:
+                        return true;
+                }
+            });
+        }
+        return elementId.replace('#','');
+    }
+
+    $(document).ready(function () {
+
+        $(".drag").draggable({
+            helper: 'clone',
+            containment: '#workflowStateContent'
+        });
+
+        //Make element droppable
+        $("#workflowStateContent").droppable({
+            drop: function (ev, ui) {
+                if (ui.helper.attr('class').search(/drag/) != -1
+                    && !ui.helper.attr('id')) {
+
+                    var p = $($(ui.helper)[0].children[0]).offset();
+                    var elementId = addStateObj(p.left, p.top, $(ui.draggable), false, true)
+                }
+            }
+        });
+    });
+</script>
+
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+@using (@Html.BeginForm("SaveWorkflow", "Workflow", Model, FormMethod.Post))
+{
+<section class="contact">
+    <header>
+        <h3>Dados do workflow
+            @if (!Model.EditMode)
+            {
+                <strong> - @Html.ActionLink("Editar Workflow", "WorkflowConfiguration", "Workflow", new { workflowId = Model.WorkflowId, displayonly = false }, null)</strong> 
+            }
+            <strong> - @Html.ActionLink("Lista de Workflows", "WorkflowList", "Workflow")</strong> 
+            @{string readonlyClass = "readonly";}
+        </h3>
+    </header>
+    <fieldset>
+        <legend>Workflow</legend>
+        <ol>
+            <li>
+                @Html.HiddenFor(m => m.WorkflowId)
+                @Html.LabelFor(m => m.Name)
+                @Html.TextBoxFor(m => m.Name, Model.EditMode ? (object)new { } : new { @readonly = !Model.EditMode, @class = readonlyClass })
+            </li>
+            <li>
+                @Html.LabelFor(m => m.EntityId)
+                @Html.DropDownListFor(m => m.EntityId, Model.EntityList, "Selecione", Model.EditMode ? (object)new {  } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+            </li>
+            <li class="fullline">
+                @Html.LabelFor(m => m.Active)
+                @Html.CheckBoxFor(m => m.Active, Model.EditMode ? (object)new {  } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+            </li>
+            <li class="fullline">
+                @Html.LabelFor(m => m.TriggerDecisionText)
+                @Html.HiddenFor(m => m.ConditionId)
+                @Html.TextAreaFor(m => m.TriggerDecisionText, new { @readonly = "true", @class = readonlyClass })
+            </li>
+            @if (Model.EditMode)
+            {
+            <li class="fullline">
+                <input type="button" value="Selecionar Condição" onclick = "selectCondition();"/>
+                @Html.ActionLink("Editar Condições", "ConditionList", "Condition", null, new { target = "_blank" })
+            </li>
+            }
+        </ol>       
+    </fieldset>
+</section>
+
+<section class="contact">
+    <header>
+        <h3>Menu de Ações</h3>
+    </header>
+    <div class="ActionMenuContent" style="width:100px;">
+        <div id="StateButton" class="drag" 
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    align-content:center;
+                    text-align:center;
+                    cursor:pointer;" 
+            title="Adicionar Estado" >
+            <img src="~/Images/state.png" style="cursor:pointer;" />
+            <label id="lblStateDesc">Estado</label>
+        </div>
+    </div>
+    @if(Model.EditMode)
+    {
+    <div class="ActionMenuContent" style="width:580px; height:20px; text-wrap:normal;">
+        <label class="tip"> * Arraste o estado para adiciona-lo ao grid. <br />
+            * clique com o botão direito para excluir um estado adicionado. <br /> 
+            * duplo clique para editar as definições de um estado.
+        </label>
+    </div>
+    <div class="ActionMenuContent" style="width:auto">
+        <div id="transitionButton"  
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    cursor:pointer;
+                    text-align:center;" 
+            title="Adicionar Transição"
+            onclick='addTransition();'>
+            <img src="~/Images/transition.png" style="cursor:pointer;" />
+            <label id="lblTranDesc" style="text-decoration: underline;">Alterar Transições</label>
+        </div>
+    </div>
+    }
+</section>
+
+<section class="contact">
+    <header>
+        <h3>Estados do workflow</h3>
+    </header>
+    <div id="workflowStateContent" class="workflowContent">
+    <canvas id="drawing">
+
+    </canvas>
+    </div>
+</section>
+        
+if (Model.EditMode)
+{
+<input type="submit" value="Salvar" />
+}
+
+}
+
+<div id="selectCondition" title="Selecionar Condição" style="background-color:white;">
+</div>
+
+<div id="stateDefinition" title="Definição do Estado" style="background-color:white;">
+</div>
+
+<div id="transitionDefinition" title="Definição de Transições" style="background-color:white;">
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        @if (!Model.EditMode)
+        {
+            @:$('.drag').draggable('disable');
+            @:$('.dragged').draggable('disable');
+        }
+
+        $('#@Html.IdFor(m => m.EntityId)').change(function (){
+            if ($('#@Html.IdFor(m => m.EntityId)').val() == '')
+            {
+                $('.dragged').remove();
+                $('.drag').draggable('disable');
+                return true;
+            }
+
+            $('.drag').draggable('enable');
+
+
+            paramData = { workflowId: '@Model.WorkflowId', entityId: $('#@Html.IdFor(m => m.EntityId)').val(), containerLeftOffset: $('#workflowStateContent').offset().left, containerTopOffset: $('#workflowStateContent').offset().top};
+
+            $.ajax({
+                type: "POST",
+                cache: false,
+                data: JSON.stringify(paramData),
+                url: "/Workflow/GetStates",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                async: false,
+                error: function (data, errorThrown) {
+                    alert('request failed :' + errorThrown);
+                },
+                success: function (data) {
+                    $('.dragged').remove();
+
+                    $.each(data, function (index, dt) {
+                        addStateObj(dt.Left, dt.Top, $('#StateButton'), dt.Initial, false, dt.Id, dt.Description);
+                    });
+
+                    drawTransitions();
+                }
+            });
+
+        });
+
+        $(".drag").draggable({
+            helper: 'clone',
+            containment: '#workflowStateContent',
+
+            //When first dragged
+            stop: function (ev, ui) {
+                var pos = $(ui.helper).offset();
+                $('#' + currentId).css({
+                    "left": pos.left,
+                    "top": pos.top
+                });
+                $('#' + currentId).removeClass("drag");
+
+
+                //When an existiung object is dragged
+                $('#' + currentId).draggable({
+                    containment: 'parent',
+                    stop: function (ev, ui) {
+                        var pos = $(ui.helper).offset();
+
+                        paramData = { leftPos: pos.left, topPos: pos.top, objName: ui.helper[0].id };
+                        $.ajax({
+                            type: "POST",
+                            url: "/Workflow/SaveStatePosition",
+                            data: JSON.stringify(paramData),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            async: false,
+                            error: function (data, errorThrown) {
+                                alert('request failed :' + errorThrown);
+                            },
+                            success: function (data) {
+                                drawTransitions();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        @if (!Model.EditMode)
+        {
+        @:$('.drag').draggable('disable');
+        @:$('.dragged').draggable('disable');
+        }     
+
+    });
+
+    function addTransition()
+    {
+        @if(!Model.EditMode) {
+            <text>return false;</text>
+        }
+        paramData = { workflowId: '@Model.WorkflowId' };
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/StateTransitionDefinition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#transitionDefinition').html(data);
+
+                $('#transitionDefinition').dialog({
+                    autoOpen: false,
+                    height: 600,
+                    width: 950,
+                    modal: true,
+                    close: function () {
+                        drawTransitions();
+                    },
+                    buttons:
+                    {
+                        "Fechar": function () {
+                            $(this).dialog("close");
+                            $('#stateDefinition').html('');
+                        }
+                    }
+                });
+
+                $('#transitionDefinition').dialog('open');
+            }
+        });
+
+    }
+
+    $('#transitionDefinition').dialog({
+        autoOpen: false
+    });
+
+    $('#stateDefinition').dialog({
+        autoOpen: false,
+    });
+
+    $('#selectCondition').dialog({
+        autoOpen: false,
+    });
+
+    function selectCondition()
+    {
+        var entityId = $('#@Html.IdFor(m => m.EntityId)').val();
+        if (entityId == '')
+            return false;
+
+        paramData = { entityId: entityId };
+        $.ajax({
+            type: "POST",
+            url: "/Condition/GetConditions",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#selectCondition').html(data);
+
+                $('#selectCondition').dialog({
+                    autoOpen: false,
+                    height: 600,
+                    width: 950,
+                    modal: true,
+                    buttons:
+                    {
+                        "Selecionar": function () {
+                            conditionId = $('#selectCondition #txtConditionId').val();
+                            if (conditionId != '')
+                            {
+                                $('#@Html.IdFor(m => m.ConditionId)').val($('#selectCondition #txtConditionId').val());
+                                $('#@Html.IdFor(m => m.TriggerDecisionText)').val($('#selectCondition #txtConditionText').val());
+                            }
+                            
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#selectCondition').dialog('open');
+            }
+        });
+
+    }
+
+
+    function drawTransitions()
+    {
+        initArrows();
+
+        $.ajax({
+            type: "GET",
+            cache: false,
+            url: "/Workflow/StateTransitionList",
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $.each(data, function (index, dt) {
+                    drawLineTransition($('#' + dt.From + ' img')[0], $('#' + dt.Target + ' img')[0]);
+                });
+            }
+        });
+
+    }
+    
+/* lines with arrows code */
+var arrow = [
+[2, 0],
+[-10, -4],
+[-10, 4]
+];
+
+function drawFilledPolygon(shape) {
+    ctx.beginPath();
+    ctx.moveTo(shape[0][0], shape[0][1]);
+
+    for (p in shape)
+        if (p > 0) ctx.lineTo(shape[p][0], shape[p][1]);
+
+    ctx.lineTo(shape[0][0], shape[0][1]);
+    ctx.fill();
+};
+
+function translateShape(shape, x, y) {
+    var rv = [];
+    for (p in shape)
+        rv.push([shape[p][0] + x, shape[p][1] + y]);
+    return rv;
+};
+
+function rotateShape(shape, ang) {
+    var rv = [];
+    for (p in shape)
+        rv.push(rotatePoint(ang, shape[p][0], shape[p][1]));
+    return rv;
+};
+function rotatePoint(ang, x, y) {
+    return [
+        (x * Math.cos(ang)) - (y * Math.sin(ang)),
+        (x * Math.sin(ang)) + (y * Math.cos(ang))
+    ];
+};
+
+function drawLineTransition(from, target) {
+    var pf = $(from).offset();
+    var pt = $(target).offset();    
+    drawLineArrow(pf.left - canvas.parentElement.offsetLeft, pf.top - canvas.parentElement.offsetTop, pt.left - canvas.parentElement.offsetLeft, pt.top - canvas.parentElement.offsetTop, 30);
+}
+
+function drawLineArrow(x1, y1, x2, y2, increment) {
+    ctx.beginPath();
+    ctx.lineWidth = 1;
+
+    x1 += increment / 2;
+    y1 += increment / 2;
+    
+    if (x1 > x2)
+        x2 += increment;
+
+    if (y1 > y2)
+        y2 += increment;
+
+
+
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    var ang = Math.atan2(y2 - y1, x2 - x1);
+    drawFilledPolygon(translateShape(rotateShape(arrow, ang), x2, y2));
+};
+
+var canvas, ctx;
+
+function initArrows() {
+    canvas = document.getElementById('drawing');
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
+    ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+};
+
+@if (Model.WorkflowStateList != null && Model.WorkflowStateList.Count() > 0)
+{
+    foreach(var item in Model.WorkflowStateList)
+    {
+        @:objId = addStateObj(@item.UILeftPosition, @item.UITopPosition, $('#StateButton'), @item.InitialState.ToString().ToLower(), false, '@item.Id.ToString()', '@item.Description');
+    }
+
+    @:drawTransitions();
+}     
+</script>

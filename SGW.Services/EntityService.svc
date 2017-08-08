@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="SGWServices.EntityService" CodeBehind="EntityService.svc.cs" %>

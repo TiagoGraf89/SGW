@@ -1,0 +1,9 @@
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\bin\Debug\BusinessLogic.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\bin\Debug\BusinessLogic.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\obj\Debug\BusinessLogic.csprojResolveAssemblyReference.cache
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\obj\Debug\BusinessLogic.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\obj\Debug\BusinessLogic.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\bin\Debug\Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\bin\Debug\DataAccess.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\bin\Debug\Common.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\BusinessLogic\bin\Debug\DataAccess.pdb

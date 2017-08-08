@@ -1,0 +1,92 @@
+﻿@using SGW.Portal
+@model SGW.Portal.Models.ResourceConfigurationModel
+@{
+    ViewBag.Title = "Configurações de Conta";
+}
+
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+<section class="contact">
+    <header>
+        <h3>Dados do Usuário
+        @if (!Model.EditMode)
+        {
+            <strong> - @Html.ActionLink("Editar Usuário", "EditResource", "ResourceConfiguration", new { resourceId = Model.Id, displayonly = false }, null)</strong> 
+        }
+        
+        @if (SGW.Common.SessionData.IsAdmin)
+        {
+                <strong> - @Html.ActionLink("Lista de Usuários", "ResourceList", "ResourceConfiguration")</strong>
+        }
+        </h3>
+    </header>
+    @using (Html.BeginForm("EditResource", "ResourceConfiguration", FormMethod.Post)) 
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+
+        @Html.HiddenFor(m => m.Id)
+        @Html.HiddenFor(m => m.EditMode)
+        string readonlyClass = "readonly";
+
+        <fieldset>
+            <legend>Usuário</legend>
+            <ol>
+                <li>
+                    @Html.LabelFor(m => m.Name)
+                    @Html.TextBoxFor(m => m.Name, Model.EditMode ? (object)new {} : new { @readonly = !Model.EditMode, @class = readonlyClass })
+                    @Html.ValidationMessageFor(m => m.Name, "Nome Inválido.")
+                </li>
+                <li>
+                    @Html.LabelFor(m => m.Email)
+                    @Html.TextBoxFor(m => m.Email, Model.EditMode ? (object)new {} : new { @readonly = !Model.EditMode, @class = readonlyClass })
+                    @Html.ValidationMessageFor(m => m.Email, "Email Inválido.")
+                </li>
+                <li class="fullline">
+                    @Html.LabelFor(m => m.Active)
+                    @Html.CheckBoxFor(m => m.Active, SGW.Common.SessionData.IsAdmin && Model.EditMode ? (object)new {} : new { @disabled = "disabled", @class = readonlyClass })
+                </li>
+                <li class="fullline">
+                    @Html.LabelFor(m => m.Workgroup)
+                    @Html.DropDownListFor(m => m.Workgroup, new SelectList(Model.WorkgroupList, "Id", "Description"),"Selecione", SGW.Common.SessionData.IsAdmin && Model.EditMode ? (object)new {} : new { @disabled = "disabled", @class = readonlyClass })
+                </li>
+                <li class="fullline">
+                    <h3>Lista de Cargos</h3>
+                </li>
+                <li class="fullline">
+                    <div class="checkboxlist">
+                    @for (var i = 0; i < Model.Roles.Count(); i++)
+                    {
+                        <div>
+                        @Html.HiddenFor(m => m.Roles[i].Id)
+                        @Html.CheckBoxFor(m => m.Roles[i].Selected, SGW.Common.SessionData.IsAdmin && Model.EditMode ? (object)new {} : new { @disabled = "disabled", @class = readonlyClass })
+                        @Html.Label(Model.Roles[i].Description)
+                        </div>
+                    } 
+                    </div>
+                </li>
+                @if (Model.EditMode)
+                {
+                <li>
+                    @Html.LabelFor(m => m.Password)
+                    @Html.PasswordFor(m => m.Password)
+                    @Html.ValidationMessageFor(m => m.Password, "Senha Inválida.")
+                </li>
+                <li>
+                    @Html.LabelFor(m => m.ConfirmPassword)
+                    @Html.PasswordFor(m => m.ConfirmPassword)
+                    @Html.ValidationMessageFor(m => m.ConfirmPassword, "Confirmação de Senha Inválida.")
+                </li>
+                <li class="fullline">
+                    <input type="submit" value="Salvar" />
+                </li>
+                }
+            </ol>       
+        </fieldset>
+    }
+</section>
+        

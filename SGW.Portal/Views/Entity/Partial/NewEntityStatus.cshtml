@@ -1,0 +1,19 @@
+﻿@model SGW.Portal.Models.EntityStatusModel
+@{    Layout = null; }
+<tr id="tr_@Model.Code">
+    <td style="width:350px;">@Model.Description</td>
+        @if (Model.EditMode)
+        {
+        <td>
+                @Html.ActionLink("Remover",
+                            "RemoveEntityStatus",
+                            "Entity",
+                            new { },
+                            new { onclick = "removeEntityStatus('" + @Model.Code + "'); return false;" })
+        </td>
+        }
+        else
+        {
+            <td></td>
+        }
+</tr>

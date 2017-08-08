@@ -1,0 +1,8 @@
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\DataAccess.dll.config
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\DataAccess.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\DataAccess.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\obj\Debug\DataAccess.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\obj\Debug\DataAccess.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\obj\Debug\DataAccess.csprojResolveAssemblyReference.cache
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\Common.pdb

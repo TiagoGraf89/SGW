@@ -1,0 +1,44 @@
+﻿@model IEnumerable<SGW.Common.DataContract.EntityInstanceDataContract>
+@{
+    ViewBag.Title = "Objetos de Entidades.";
+
+    <h2>Lista de Instâncias de Entidades.</h2>
+    
+    <br />    
+    <table>
+        <tr class="header">
+            <th>Entidade</th>
+            <th>Identificador</th>
+            <th>Estado Atual</th>
+            <th>Etapas Assinaladas</th>
+            <th>Data Criação</th>
+        </tr>
+
+    @if (Model.Count() == 0) {
+        <tr>
+            <td>Nenhum item na lista.</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    }         
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Entity.Description</td>
+            <td>@Html.ActionLink(string.IsNullOrEmpty(item.UserDefinedCode) ? "Detalhes" : item.UserDefinedCode, "EntityInstance", "Action", new { entityInstanceId = item.Id }, null)</td>
+            <td>@item.CurrentStatus</td>
+            <td>@item.CurrentSteps</td>
+            @if (item.CreatedOn.HasValue)
+            {
+                <td>@item.CreatedOn.Value.ToString("dd/MM/yyyy HH:mm")</td>
+            }
+            else
+            {
+                <td></td>
+            }
+        </tr>
+    }
+    </table>
+}
+

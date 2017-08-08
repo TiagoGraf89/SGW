@@ -1,0 +1,5 @@
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGWServices\obj\Debug\SGWServices.csprojResolveAssemblyReference.cache
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGWServices\bin\SGWServices.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGWServices\bin\SGWServices.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGWServices\obj\Debug\SGWServices.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGWServices\obj\Debug\SGWServices.pdb

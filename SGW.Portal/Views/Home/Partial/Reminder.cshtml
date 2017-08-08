@@ -1,0 +1,28 @@
+﻿@model List<SGW.Portal.Models.ActionModel>
+@{
+    Layout = null;
+}
+
+    <table style="width:900px;">
+        <tr class="header">
+            <th>Entidade</th>
+            <th>Workflow</th>
+            <th>Identificador</th>
+            <th>Participante</th>
+            <th>Etapas Assinaladas</th>
+            <th>Data</th>
+            <th>Ação</th>
+        </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td><strong>@item.Entity</strong></td>
+            <td><strong>@item.Workflow</strong></td>
+            <td>@Html.ActionLink(item.UserDefinedId, "EntityInstance", "Action", new { entityInstanceId = item.EntityInstanceId }, null)</td>
+            <td>@item.Assignee</td>
+            <td>@item.Step</td>
+            <td>@item.Date.ToString("dd/MM/yyy HH:mm")</td>
+            <td>@Html.ActionLink("Concluir Etapa", "Index", "Action", new { workflowStepInstanceId = item.WorkflowStepInstanceId, entityInstanceId = item.EntityInstanceId, stepId = item.StepId, entity = item.Entity, assignee = item.Assignee, userDefinedCode = item.UserDefinedId }, null)</td>
+        </tr>
+    }
+    </table>

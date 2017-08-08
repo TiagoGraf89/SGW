@@ -1,0 +1,8 @@
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\Common\bin\Debug\SGW.Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\Common\bin\Debug\SGW.Common.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\Common\obj\Debug\SGW.Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\Common\obj\Debug\SGW.Common.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Common\bin\Debug\SGW.Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Common\bin\Debug\SGW.Common.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Common\obj\Debug\SGW.Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Common\obj\Debug\SGW.Common.pdb

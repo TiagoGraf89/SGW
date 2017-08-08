@@ -1,0 +1,29 @@
+﻿@model SGW.Portal.Models.ConditionDetailModel
+@{    Layout = null; }
+<tr id="tr_@Model.ConditionDetailId.ToString()">
+    <td>@Model.GroupIdentifier</td>
+    <td><strong>@Model.Field</strong></td>
+    <td>@Model.Operator</td>
+    @if (string.IsNullOrEmpty(Model.Value2))
+    {
+        <td>@Model.Value1</td>
+    }
+    else
+    {
+        <td>@Model.Value1 - @Model.Value2</td>
+    }
+        @if (Model.EditMode)
+        {
+        <td>
+                @Html.ActionLink("Remover",
+                            "RemoveConditionDetail",
+                            "Condition",
+                            new { },
+                            new { onclick = "removeConditionDetail('" + @Model.ConditionDetailId + "'); return false;" })
+        </td>
+        }
+        else
+        {
+            <td></td>
+        }
+</tr>

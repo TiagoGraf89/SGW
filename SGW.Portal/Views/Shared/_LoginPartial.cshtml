@@ -1,0 +1,17 @@
+﻿@if (Request.IsAuthenticated) {
+    if (SGW.Common.SessionData.ResourceId == Guid.Empty)
+    {
+        SGW.Portal.AuthConfig.StartLoginSession(User.Identity.Name);
+    }
+    <text>
+        Olá, @Html.ActionLink(SGW.Common.SessionData.Name, "EditResource", "ResourceConfiguration", routeValues: new { resourceId = SGW.Common.SessionData.ResourceId }, htmlAttributes: new { @class = "username", title = "Manage" })!
+        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" })) {
+            @Html.AntiForgeryToken()
+            <a href="javascript:document.getElementById('logoutForm').submit()">Sair</a>
+        }
+    </text>
+} else {
+    <ul>
+        <li>@Html.ActionLink("Entrar", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+    </ul>
+}

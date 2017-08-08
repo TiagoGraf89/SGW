@@ -1,0 +1,28 @@
+﻿@model SGW.Portal.Models.HomeModel
+@using SGW.Common.Extender;
+@{
+
+    ViewBag.Title = "Pagina Inicial";
+}
+@section featured {
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>@ViewBag.Title.</h1>
+                <h2>@ViewBag.Message</h2>
+            </hgroup>
+            <p>
+                @DateTime.Today.ToLongDateString().FirstUpperCase();
+                <br />
+                Bem Vindo a Página Inicial do Gerenciador de Workflows.
+                <br />
+                <br />
+                Você possui @Model.ActionRequests.Count itens assinalados.
+            </p>
+        </div>
+    </section>
+}
+<h3>Workflows/Etapas Pendentes:</h3>
+<ol class="round">
+    @Html.Partial("Partial/Reminder", (List<SGW.Portal.Models.ActionModel>)Model.ActionRequests)
+</ol>

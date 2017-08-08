@@ -1,0 +1,552 @@
+﻿@model SGW.Portal.Models.WorkflowTransitionDefinitionModel
+@{
+    ViewBag.Title = "Definições das Etapas entre Transições de Estados.";
+}
+<style>
+#workflowStateContent {
+    -webkit-border-radius: 100%; 
+    -moz-border-radius: 100%; 
+}
+
+.divtransition {
+    position: absolute;
+    width: 1px;
+    background-color: black;
+    z-index: 0;
+    -webkit-transform-origin: top left;
+    -moz-transform-origin: top left;
+    -o-transform-origin: top left;
+    -ms-transform-origin: top left;
+    transform-origin: top left;
+}
+</style>
+
+<script type="text/javascript">
+    counter = 0;
+    var currentId;
+
+    function showStepDefinition(left, top, elementId, newStep)
+    {
+        var stepType = $('#' + elementId).attr('stepCommand');
+        paramData = { leftPos: left, topPos: top, fromStateId: $('#@Html.IdFor(m => m.FromStateId)').val(), stepName: elementId, workflowId: '@Model.WorkflowId.ToString()', stepType: stepType };
+
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/GetStepDefinition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#stepDefinition').html(data);
+
+                $('#stepDefinition').dialog({
+                    autoOpen: false,
+                    height: 700,
+                    width: 950,
+                    modal: true,
+                    buttons:
+                    {
+                        "Salvar": function () {
+                            if (onSaveStepDefinition())
+                                $(this).dialog("close");
+                        },
+                        "Cancelar": function () {
+                            if(newStep)
+                                $('#'+ elementId).remove();
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#stepDefinition').dialog('open');
+            }
+        });
+
+    }
+    function addStepObject(left, top, originObj, initial, showDefinition, id, desc)
+    {
+        counter++;
+        var element = originObj.clone();
+        element.addClass("tempclass");
+        $("#workflowStepContent").append(element);
+        var elementId = "clonediv" + counter;
+        $(".tempclass").attr("id", elementId);
+        elementId = "#" + elementId;
+        $(elementId).removeClass("tempclass");
+        $(elementId).removeClass("drag");
+        $(elementId).addClass("dragged");
+        $(elementId).css({
+            "left": left,
+            "top": top
+        });
+
+        //When an existiung object is dragged
+        $(elementId).draggable({
+            containment: 'parent',
+            stop: function (ev, ui) {
+                var pos = $(ui.helper).offset();
+
+                paramData = { leftPos: pos.left, topPos: pos.top, objName: ui.helper[0].id };
+                $.ajax({
+                    type: "POST",
+                    url: "/Workflow/SaveStepPosition",
+                    data: JSON.stringify(paramData),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    async: false,
+                    error: function (data, errorThrown) {
+                        alert('request failed :' + errorThrown);
+                    },
+                    success: function (data) {
+                        drawTransitions();
+                    }
+                });
+            }
+        });
+
+        if (initial)
+        {
+            $(elementId + ' img')[0].src = "../Images/initialState.png";
+        }
+
+        if (showDefinition)
+        {
+            showStepDefinition(left, top, elementId.replace('#',''), true);
+        }
+        else
+        {
+            $(elementId).attr('id', 'step_' + id);
+            elementId = '#step_' + id;
+            $(elementId + ' label')[0].innerText = desc;
+        }
+
+
+        if ($(elementId).length > 0)
+        {
+            $(elementId).dblclick(function () {
+                showStepDefinition(left, top, $(this)[0].id, false);
+            });
+
+            $(elementId).mousedown(function(event) {
+                switch (event.which) {
+                    case 3:
+                        if (confirm('Você deseja remover esta etapa e suas tansições?'))
+                        {
+                            var elementId = $(this)[0].id;
+                            paramData = { stepId: $(this)[0].id.replace('step_','') };
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/RemoveStep",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                async: false,
+                                error: function (data, errorThrown) {
+                                    alert('request failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#' + elementId).remove();
+                                    drawTransitions();
+                                }
+                            });
+                        }
+                        break;
+                    default:
+                        return true;
+                }
+            });
+        }
+        return elementId.replace('#','');
+    }
+
+    $(document).ready(function () {
+
+        $(".drag").draggable({
+            helper: 'clone',
+            containment: '#workflowStepContent'
+        });
+
+        //Make element droppable
+        $("#workflowStepContent").droppable({
+            drop: function (ev, ui) {
+                if (ui.helper.attr('class').search(/drag/) != -1
+                    && !ui.helper.attr('id')) {
+
+                    var p = $($(ui.helper)[0].children[0]).offset();
+                    var elementId = addStepObject(p.left, p.top, $(ui.draggable), false, true, '', '')
+                }
+            }
+        });
+    });
+</script>
+
+
+<hgroup class="title">
+    <h1>@ViewBag.Title</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+@using (@Html.BeginForm("WorkflowTransitionDetail", "Workflow", Model, FormMethod.Post))
+{
+<section class="contact">
+    <header>
+        <h3>Dados do workflow
+            @if (!Model.EditMode)
+            {
+                <strong> - @Html.ActionLink("Editar Transições", "WorkflowTransitionDetail", "Workflow", new { workflowId = Model.WorkflowId, displayonly = false }, null)</strong> 
+            }
+            <strong> - @Html.ActionLink("Lista de Workflows", "WorkflowList", "Workflow")</strong> 
+            <strong> - @Html.ActionLink("Definição de Estados", "WorkflowConfiguration", "Workflow", new { workflowId = Model.WorkflowId, displayonly = !Model.EditMode }, null)</strong> 
+            @{string readonlyClass = "readonly";}
+        </h3>
+    </header>
+    <fieldset>
+        <legend>Transição de Estados do Workflow</legend>
+        <ol>
+            <li>
+                @Html.HiddenFor(m => m.WorkflowId)
+                @Html.LabelFor(m => m.WorkflowName)
+                @Html.TextBoxFor(m => m.WorkflowName, new { @readonly = true, @class = readonlyClass })
+            </li>
+            <li class="fullline">
+                @Html.LabelFor(m => m.FromStateId)
+                @Html.DropDownListFor(m => m.FromStateId, Model.StateTransitionList, "Selecione", new { onchange = "return openTransition($(this).val());", style = "width:800px;" })
+            </li>
+        </ol>       
+    </fieldset>
+</section>
+
+<section class="contact">
+    <header>
+        <h3>Menu de Ações</h3>
+    </header>
+    <div class="ActionMenuContent" style="display:none;">
+        <div id="stateButton" stepCommand="state"
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    align-content:center;
+                    text-align:center;
+                    cursor:pointer;" 
+            title="Adicionar Estado" >
+            <img src="~/Images/state.png" style="cursor:pointer;" />
+            <label id="lblStateDesc">Estado</label>
+        </div>
+    </div>
+    <div class="ActionMenuContent" style="width:100px;">
+        <div id="uploadButton" stepCommand="upload" class="drag" 
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    align-content:center;
+                    text-align:center;
+                    cursor:pointer;" 
+            title="Adicionar Upload de Arquivo" >
+            <img src="~/Images/uploadStep.png" style="cursor:pointer;" />
+            <label id="lblUploadDesc">Upload</label>
+        </div>
+    </div>
+    <div class="ActionMenuContent" style="width:100px;">
+        <div id="actionButton" stepCommand="action" class="drag" 
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    align-content:center;
+                    text-align:center;
+                    cursor:pointer;" 
+            title="Adicionar Ação Manual" >
+            <img src="~/Images/actionStep.png" style="cursor:pointer;" />
+            <label id="lblActionDesc">Ação</label>
+        </div>
+    </div>
+    <div class="ActionMenuContent" style="width:100px;">
+        <div id="decisionButton" stepCommand="decision" class="drag" 
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    align-content:center;
+                    text-align:center;
+                    cursor:pointer;" 
+            title="Adicionar Decisão Automatica" >
+            <img src="~/Images/decisionStep.png" style="cursor:pointer;" />
+            <label id="lblDecisionDesc">Decisão</label>
+        </div>
+    </div>
+    <div class="ActionMenuContent" style="width:100px;">
+        <div id="calcButton" stepCommand="calc" class="drag" 
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    align-content:center;
+                    text-align:center;
+                    cursor:pointer;" 
+            title="Adicionar Processo" >
+            <img src="~/Images/calcStep.png" style="cursor:pointer;" />
+            <label id="lblCalcDesc">Processo</label>
+        </div>
+    </div>
+    <div class="ActionMenuContent" style="width:100px;">
+        <div id="notifyButton" stepCommand="notify" class="drag" 
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    align-content:center;
+                    text-align:center;
+                    cursor:pointer;" 
+            title="Adicionar Notificação" >
+            <img src="~/Images/notifyStep.png" style="cursor:pointer;" />
+            <label id="lblNotifyDesc">Notificação</label>
+        </div>
+    </div>
+    @if(Model.EditMode)
+    {
+    <div class="ActionMenuContent" style="width:150px;">
+        <div id="transitionButton"  
+            style="width:auto; 
+                    height:auto;
+                    z-index:1; 
+                    cursor:pointer;
+                    text-align:center;" 
+            title="Adicionar Transição"
+            onclick='addTransition();'>
+            <img src="~/Images/transition.png" style="cursor:pointer;" />
+            <label id="lblTranDesc" style="text-decoration: underline;">Alterar Transições</label>
+        </div>
+    </div>
+    <div class="ActionMenuContent" style="width:580px; height:20px; text-wrap:normal;">
+        <label class="tip"> * Arraste as etapas para adiciona-las ao grid. <br />
+            * clique com o botão direito para excluir uma etapa adicionado. <br /> 
+            * duplo clique para editar as definições de uma etapa.
+        </label>
+    </div>
+    }
+</section>
+
+<section class="contact">
+    <header>
+        <h3>Etapas da Transição</h3>
+    </header>
+    <div id="workflowStepContent" class="workflowContent">
+    <canvas id="drawing">
+
+    </canvas>
+    </div>
+</section>
+        
+    if (Model.EditMode)
+    {
+<input type="submit" value="Salvar" />
+    }
+
+}
+
+<div id="stepDefinition" title="Definição da Etapa" style="background-color:white;">
+</div>
+
+<div id="transitionDefinition" title="Definição de Transições" style="background-color:white;">
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        @if (!Model.EditMode)
+        {
+        @:$('.drag').draggable('disable');
+        @:$('.dragged').draggable('disable');
+        }     
+
+    });
+
+    function addTransition()
+    {
+        @if (!Model.EditMode)
+        {
+            <text>return false;</text>
+        }
+        paramData = { workflowId: '@Model.WorkflowId', fromStateId: $('#@Html.IdFor(m => m.FromStateId)').val() };
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/StepTransitionDefinition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#transitionDefinition').html(data);
+
+                $('#transitionDefinition').dialog({
+                    autoOpen: false,
+                    height: 600,
+                    width: 950,
+                    modal: true,
+                    close: function () {
+                        drawTransitions();
+                    },
+                    buttons:
+                    {
+                        "Fechar": function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#transitionDefinition').dialog('open');
+            }
+        });
+
+    }
+
+    $('#transitionDefinition').dialog({
+        autoOpen: false
+    });
+
+    $('#stepDefinition').dialog({
+        autoOpen: false,
+    });
+
+
+
+    function drawTransitions()
+    {
+        initArrows();
+
+        $.ajax({
+            type: "GET",
+            cache: false,
+            url: "/Workflow/StepTransitionList",
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $.each(data, function (index, dt) {
+                    drawLineTransition($('#' + dt.From + ' img')[0], $('#' + dt.Target + ' img')[0]);
+                });
+            }
+        });
+
+    }
+    
+/* lines with arrows code */
+var arrow = [
+[2, 0],
+[-10, -4],
+[-10, 4]
+];
+
+function drawFilledPolygon(shape) {
+    ctx.beginPath();
+    ctx.moveTo(shape[0][0], shape[0][1]);
+
+    for (p in shape)
+        if (p > 0) ctx.lineTo(shape[p][0], shape[p][1]);
+
+    ctx.lineTo(shape[0][0], shape[0][1]);
+    ctx.fill();
+};
+
+function translateShape(shape, x, y) {
+    var rv = [];
+    for (p in shape)
+        rv.push([shape[p][0] + x, shape[p][1] + y]);
+    return rv;
+};
+
+function rotateShape(shape, ang) {
+    var rv = [];
+    for (p in shape)
+        rv.push(rotatePoint(ang, shape[p][0], shape[p][1]));
+    return rv;
+};
+function rotatePoint(ang, x, y) {
+    return [
+        (x * Math.cos(ang)) - (y * Math.sin(ang)),
+        (x * Math.sin(ang)) + (y * Math.cos(ang))
+    ];
+};
+
+function drawLineTransition(from, target) {
+    var pf = $(from).offset();
+    var pt = $(target).offset();    
+    drawLineArrow(pf.left - canvas.parentElement.offsetLeft, pf.top - canvas.parentElement.offsetTop, pt.left - canvas.parentElement.offsetLeft, pt.top - canvas.parentElement.offsetTop, 30);
+}
+
+function drawLineArrow(x1, y1, x2, y2, increment) {
+    ctx.beginPath();
+    ctx.lineWidth = 1;
+
+    x1 += increment / 2;
+    y1 += increment / 2;
+    
+    if (x1 > x2)
+        x2 += increment;
+
+    if (y1 > y2)
+        y2 += increment;
+
+
+
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    var ang = Math.atan2(y2 - y1, x2 - x1);
+    drawFilledPolygon(translateShape(rotateShape(arrow, ang), x2, y2));
+};
+
+var canvas, ctx;
+
+function initArrows() {
+    canvas = document.getElementById('drawing');
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = canvas.parentElement.offsetHeight;
+    ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+};
+
+function openTransition(fromStateId)
+{
+    paramData = { workflowId: '@Model.WorkflowId', fromStateId: fromStateId, containerLeftOffset: $('#workflowStepContent').offset().left, containerTopOffset: $('#workflowStepContent').offset().top};
+
+    $.ajax({
+        type: "POST",
+        cache: false,
+        data: JSON.stringify(paramData),
+        url: "/Workflow/GetSteps",
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        async: false,
+        error: function (data, errorThrown) {
+            alert('request failed :' + errorThrown);
+        },
+        success: function (data) {
+            $('.dragged').remove();
+
+            $.each(data, function (index, dt) {
+                addStepObject(dt.Left, dt.Top, $('#' + dt.Command + 'Button'), dt.Initial, false, dt.Id, dt.Description);
+            });
+
+            drawTransitions();
+        }
+    });
+
+};
+
+@if (Model.StepList != null && Model.StepList.Count() > 0)
+{
+    foreach (var item in Model.StepList)
+    {
+        @:objId = addStepObject(@item.UILeftPosition, @item.UITopPosition, $('#@item.StepType.CommandType' + 'Button'), @item.Initial.ToString().ToLower(), false, '@item.Id.ToString()', '@item.Description');
+    }
+
+    @:drawTransitions();
+}     
+</script>

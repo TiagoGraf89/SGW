@@ -1,0 +1,357 @@
+﻿@using SGW.Portal
+@model SGW.Portal.Models.EntityModel
+@{
+    ViewBag.Title = "Configurações de Entidade";
+}
+
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+@using (Html.BeginForm("EditEntity", "Entity", FormMethod.Post, new { id = "EditEntityForm" }))
+{
+    <section class="contact">
+        <header>
+            <h3>Dados da Entidade
+            @if (!Model.EditMode)
+            {
+                <strong> - @Html.ActionLink("Editar Entidade", "EditEntity", "Entity", new { entityId = Model.Id, displayonly = false }, null)</strong> 
+            }
+            <strong> - @Html.ActionLink("Lista de Entidades", "Index", "Entity", null, null)</strong> 
+            </h3>
+        </header>
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+
+            @Html.HiddenFor(m => m.Id)
+            @{string readonlyClass = "readonly"; }
+
+            <fieldset>
+                <legend>Entidade</legend>
+                <ol>
+                    <li>
+                        @Html.LabelFor(m => m.Name)
+                        @Html.TextBoxFor(m => m.Name, Model.EditMode ? (object)new { } : new { @readonly = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.Name, "Nome Inválido.")
+                    </li>
+                    <li>
+                        @Html.LabelFor(m => m.EntityType)
+                        @Html.DropDownListFor(m => m.EntityType, 
+                        new SelectList(Model.EntityTypes, "Id", "Name", Model.EntityType), 
+                        "Selecione", Model.EditMode && string.IsNullOrEmpty(Model.StatusField) ? (object)new {  } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.EntityType, "Tipo de Entidade Inválido.")
+                    </li>
+                    <li>
+                        @Html.LabelFor(m => m.SQLTableName)
+                        @Html.DropDownListFor(m => m.SQLTableName, 
+                        new SelectList(Model.SQLTables, "Name", "Name", Model.SQLTableName), 
+                        "Selecione", Model.EditMode && string.IsNullOrEmpty(Model.StatusField) ? (object)new { } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.SQLTableName, "Nome da Tabela SQL Inválido.")
+                    </li>
+                </ol>       
+            </fieldset>
+    </section>
+
+        <section class="contact">
+        <header>
+            <h2>Campos da Entidade</h2>
+        </header>
+
+    @if (Model.EditMode)
+    {
+            <fieldset>
+                <legend>Campos</legend>
+                <ol>
+                    <li>
+                        @Html.Label("Nome do Campo")
+                        @Html.TextBox("txtField")
+                    </li>
+                    <li>
+                        @Html.Label("Tipo do Campo")
+                        @Html.DropDownList("txtFieldType", new SelectList(Model.EntityFieldTypes, "Id", "Name"))
+                    </li>
+                    <li class="fullline">
+                        <input id="btnAddField" type="button" value="Adicionar Campo" />
+                    </li>
+                </ol>
+            </fieldset>
+    }
+                <table id="fieldsContainer">
+                    <tr class="header">
+                        <th>Nome do Campo</th>
+                        <th>Tipo</th>
+                        <th>Ação</th>
+                    </tr>
+                    @foreach (var item in Model.EntityFields)
+                    {
+                        item.EditMode = Model.EditMode;
+                        @Html.Partial("Partial/NewEntityField", item)
+                    }
+                </table>
+        
+    </section>
+
+    
+    <section class="contact">
+        <header>
+            <h2>Status e Identificador da Entidade</h2>
+        </header>
+
+    @if (Model.EditMode)
+    {
+            <fieldset>
+                <legend>Status</legend>
+                <ol>
+                    <li>
+                        @Html.LabelFor(m => m.StatusField)
+                        @Html.DropDownListFor(m => m.StatusField, 
+                        new SelectList(Model.EntityFields, "Name", "Name", Model.StatusField), 
+                        "Selecione", Model.EditMode && Model.EntityStatus.Count == 0 ? (object)new { } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.StatusField, "Campo de Status Invalido.")
+                        <label class="tip">* O Workflow será controlado por este campo</label>
+                    </li>
+                    <li>
+                        @Html.LabelFor(m => m.UserDefinedCodeField)
+                        @Html.DropDownListFor(m => m.UserDefinedCodeField, 
+                        new SelectList(Model.EntityFields, "Name", "Name", Model.UserDefinedCodeField), 
+                        "Selecione", Model.EditMode ? (object)new { } : new { @disabled = !Model.EditMode, @class = readonlyClass })
+                        @Html.ValidationMessageFor(m => m.UserDefinedCodeField, "Campo de Código Manual Invalido.")
+                    </li>
+                    <li class="fullline">
+                        <h3>Lista de Status da Entidade</h3>
+                        <br />
+                    </li>
+                    <li class="fullline">
+                        @Html.Label("Descrição")
+                        @Html.TextBox("txtDesc")
+                    </li>
+                    <li class="fullline">
+                        <input id="btnAdd" type="button" value="Adicionar Status" />
+                    </li>
+                </ol>
+            </fieldset>
+    }
+                <table id="container" style="width:300px;">
+                    <tr class="header">
+                        <th>Descrição Status</th>
+                        <th>Ação</th>
+                    </tr>
+                    @foreach (var item in Model.EntityStatus)
+                    {
+                        item.EditMode = Model.EditMode;
+                        @Html.Partial("Partial/NewEntityStatus", item)
+                    }
+                </table>
+        
+    </section>
+    
+    
+    
+                    if (Model.EditMode)
+                    {
+        <input type="submit" value="Salvar" onclick="$('select').removeAttr('disabled');"/>
+                    }
+}
+<script>
+    $(function () {
+        $('#@Html.IdFor(m => m.EntityType)').change(function () {
+            if ($('#@Html.IdFor(m => m.EntityType)').val() != 'T') {
+                $('#@Html.IdFor(m => m.SQLTableName)').attr('disabled', 'true').attr('class', 'readonly').val('').change();
+            }
+            else
+            {
+                if ($('#@Html.IdFor(m => m.StatusField)').val() == '' && $('#container tr').length <= 1)
+                {
+                    $('#@Html.IdFor(m => m.SQLTableName)').removeAttr('disabled').removeAttr('class');
+                }
+            }
+        });
+
+        $('#@Html.IdFor(m => m.StatusField)').change(function () {
+            if ($('#@Html.IdFor(m => m.StatusField)').val() == '')
+                $('#btnAdd').attr('disabled', 'true');
+            else {
+                $('#btnAdd').removeAttr('disabled');
+
+                paramData = { statusFieldId: $('#@Html.IdFor(m => m.StatusField) option:selected').text(), tableName: $('#@Html.IdFor(m => m.SQLTableName) option:selected').text() };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Entity/SetEntityStatus",
+                    data: JSON.stringify(paramData),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    async: false,
+                    error: function (data, errorThrown) {
+                        return;
+                    },
+                    success: function (data) {
+                        if (data != '') {
+                            $("#container tr[class!='header']").remove();
+                            $("#container").append(data);
+                            $('#@Html.IdFor(m => m.StatusField)').attr('class', 'readonly').attr('disabled', 'true');
+                            $('#@Html.IdFor(m => m.SQLTableName)').attr('class', 'readonly').attr('disabled', 'true');
+                            $('#@Html.IdFor(m => m.EntityType)').attr('class', 'readonly').attr('disabled', 'true');
+                        }
+                    }
+                });
+
+            }
+            $('#@Html.IdFor(m => m.EntityType)').change();
+        });
+
+        $('#@Html.IdFor(m => m.SQLTableName)').change(function () {
+
+            if ($('#@Html.IdFor(m => m.SQLTableName)').val() != '') {
+
+                paramData = { table: $('#@Html.IdFor(m => m.SQLTableName)').val() };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Entity/GetEntityTableFields",
+                    data: JSON.stringify(paramData),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    async: false,
+                    error: function (data, errorThrown) {
+                        alert('error.');
+                    },
+                    success: function (data) {
+                        $('#fieldsContainer tr.systemdefined').each(function (index, tr) {
+                            $('#@Html.IdFor(m => m.StatusField) option[value="' + tr.id.replace('tr_', '') + '"]').remove();
+                            $('#@Html.IdFor(m => m.UserDefinedCodeField) option[value="' + tr.id.replace('tr_', '') + '"]').remove();
+                        });
+
+                        $('#fieldsContainer tr.systemdefined').remove();
+
+                        $("#fieldsContainer").append(data);
+
+                        $('#fieldsContainer tr.systemdefined').each(function (index, dt) {
+                            $('#@Html.IdFor(m => m.StatusField)').append('<option value="' + dt.id.replace('tr_', '') + '">' + dt.id.replace('tr_', '') + '</option>')
+                            $('#@Html.IdFor(m => m.UserDefinedCodeField)').append('<option value="' + dt.id.replace('tr_', '') + '">' + dt.id.replace('tr_', '') + '</option>')
+                        });
+                    }
+                });
+            }
+            else {
+                $('#fieldsContainer tr.systemdefined').each(function (index, tr) {
+                    removeEntityField(tr.id.replace('tr_', ''));
+                });
+            }
+        });
+
+        $('#@Html.IdFor(m => m.StatusField)').change();
+
+        $("#btnAdd").click(function (e) {
+
+            var itemIndex = $("#container input.iHidden").length;
+            e.preventDefault();
+
+            paramData = { desc: $('#txtDesc').val(), code: $('#txtDesc').val() };
+
+            $.ajax({
+                type: "POST",
+                url: "/Entity/AddEntityStatus",
+                data: JSON.stringify(paramData),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'html',
+                error: function (data, errorThrown) {
+                    alert('Código já adicionado.');
+                },
+                success: function (data) {
+                    $("#container").append(data);
+                    $('#@Html.IdFor(m => m.StatusField)').attr('class', 'readonly').attr('disabled', 'true');
+                    $('#@Html.IdFor(m => m.SQLTableName)').attr('class', 'readonly').attr('disabled', 'true');
+                    $('#@Html.IdFor(m => m.EntityType)').attr('class', 'readonly').attr('disabled', 'true');
+                    $('#txtDesc').val('');
+                }
+            });
+
+        });
+
+        $("#btnAddField").click(function (e) {
+
+            var itemIndex = $("#fieldsContainer input.iHidden").length;
+            e.preventDefault();
+
+            if ($('#txtField').val() == '') {
+                alert('Nome do campo obrigatório!');
+                return;
+            }
+
+            paramData = { field: $('#txtField').val(), type: $('#txtFieldType').val() };
+
+            $.ajax({
+                type: "POST",
+                url: "/Entity/AddEntityField",
+                data: JSON.stringify(paramData),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'html',
+                error: function (data, errorThrown) {
+                    alert('Campo já adicionado.');
+                },
+                success: function (data) {
+                    $("#fieldsContainer").append(data);
+                    $('#@Html.IdFor(m => m.StatusField)').append('<option value="' + $('#txtField').val() + '">' + $('#txtField').val() + '</option>')
+                    $('#@Html.IdFor(m => m.UserDefinedCodeField)').append('<option value="' + $('#txtField').val() + '">' + $('#txtField').val() + '</option>')
+                    $('#txtField').val('');
+                    $('#txtFieldType').val('T');
+                }
+            });
+
+        });
+
+    });
+
+
+function removeEntityStatus(c) {
+        paramData = { code: c };
+    
+        $.ajax({
+            type: "POST",
+            url: "/Entity/RemoveEntityStatus",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            error: function (data, errorThrown) {
+                alert('Código inexistente.');
+            },
+            success: function (data) {
+                $('#container #tr_' + c).remove();
+                if ($('#container tr').length <= 1) {
+                    $('#@Html.IdFor(m => m.StatusField)').removeAttr('class').removeAttr('disabled');
+                    $('#@Html.IdFor(m => m.EntityType)').removeAttr('class').removeAttr('disabled').change();
+                }
+            }
+        });
+
+}
+
+function removeEntityField(c) {
+    paramData = { field: c };
+
+    if ($('#@Html.IdFor(m => m.StatusField)').val() == c && $('#container tr').length > 1) {
+        alert('O campo não pode ser removido pois é utilizado como status da entidade!');
+        return;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: "/Entity/RemoveEntityField",
+        data: JSON.stringify(paramData),
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        error: function (data, errorThrown) {
+            alert('Código inexistente.');
+        },
+        success: function (data) {
+            $('#fieldsContainer #tr_' + c).remove();
+            $('#@Html.IdFor(m => m.StatusField) option[value="' + c + '"]').remove();
+            $('#@Html.IdFor(m => m.UserDefinedCodeField) option[value="' + c + '"]').remove();
+        }
+    });
+
+}
+</script>

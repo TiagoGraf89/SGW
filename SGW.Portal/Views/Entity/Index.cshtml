@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Lista de Entidades";
+    IEnumerable<SGW.Common.DataContract.EntityDataContract> entities = ViewBag.EntityList;
+
+    <h2>Lista de Entidades.</h2>
+    @Html.ActionLink("Criar Nova Entidade", "EditEntity", "Entity", new { entityId = Guid.Empty }, null)
+    @Html.ActionLink("Alterar Definições de Acesso", "EditEntity", "Entity")
+    <table>
+        <tr class="header">
+            <th>Nome da Entidade</th>
+            <th>Tipo de Entidade</th>
+            <th>Ação</th>
+        </tr>
+    @if (entities.Count() == 0)
+    {
+        <tr>
+            <td>Nenhum Item na lista.</td>
+            <td></td>
+            <td></td>
+        </tr>
+    }
+
+    @foreach (var item in entities)
+    {
+        <tr>
+            <td>@item.Name</td>
+            @if (@item.EntityType == "M")
+            {
+            <td>Manual</td>
+            }
+            else
+            {
+            <td>Tabela</td>
+            }
+            <td>@Html.ActionLink("Alterar", "EditEntity", "Entity", new { entityId = item.Id }, null)
+                @Html.ActionLink("Remover", "DeleteEntity", "Entity", new { entityId = item.Id }, new { onclick = "if (confirm('Deseja realmente remover esta entidade?')) return true; else return false;" })
+            </td>
+        </tr>
+    }
+    </table>}

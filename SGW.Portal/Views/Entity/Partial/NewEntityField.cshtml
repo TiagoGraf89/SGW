@@ -1,0 +1,46 @@
+﻿@model SGW.Portal.Models.EntityFieldModel
+@{    Layout = null;
+      string systemclass = "";
+      if (!Model.UserDefined)
+      {
+          systemclass = "systemdefined";
+      }
+}
+
+<tr id="tr_@Model.Name" class="@systemclass">
+    <td style="width:350px;">@Model.Name</td>
+    @switch (Model.Type)
+    {
+        case "T":
+            <td><strong>Texto</strong></td>
+            break;
+        case "D":
+            <td><strong>Data/Hora</strong></td>
+            break;
+        case "N":
+            <td><strong>Número</strong></td>
+            break;
+        case "C":
+            <td><strong>Identificador</strong></td>
+            break;            
+    }
+
+        @if (Model.EditMode && Model.UserDefined)
+        {
+        <td>
+                @Html.ActionLink("Remover",
+                            "RemoveEntityField",
+                            "Entity",
+                            new { },
+                            new { onclick = "removeEntityField('" + @Model.Name + "'); return false;" })
+        </td>
+        }
+        else if (!Model.UserDefined)
+        {
+            <td>Campo não editavel.</td>
+        }
+        else
+        {
+            <td></td>
+        }
+</tr>

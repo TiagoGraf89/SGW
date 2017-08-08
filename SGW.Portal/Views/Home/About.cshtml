@@ -1,0 +1,27 @@
+﻿@{
+    ViewBag.Title = "Sobre";
+}
+@section featured {
+ <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>@ViewBag.Title.</h1>
+                <h2>@ViewBag.Message</h2>
+            </hgroup>
+            <p>
+                @DateTime.Today.ToLongDateString();
+                <br />
+                Desenvolvido por Tiago Augusto Graf
+                <br />
+                SENAC - Sistema Nacional de Aprendizagem Comercial
+            </p>
+
+        </div>
+    </section>
+}
+<h3>Framework de Gerenciamento de Workflows</h3>
+<ol class="round">
+    <li>
+        Sistema desenvolvido em conjunto com o projeto do TCC para conclusão do curso de Análise e Desenvolvimento de Sistemas.
+    </li>
+</ol>

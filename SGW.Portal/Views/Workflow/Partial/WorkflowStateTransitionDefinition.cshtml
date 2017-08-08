@@ -1,0 +1,172 @@
+﻿@model SGW.Portal.Models.WorkflowStateTransitionDefinitionModel
+@{
+    Layout = null;
+}
+
+<fieldset>
+    <legend>Transição de Estado</legend>
+    <ol>
+        <li class="fullline">
+            @Html.LabelFor(m => m.Description)
+            @Html.TextBoxFor(m => m.Description)
+        </li>
+        <li>
+            @Html.LabelFor(m => m.FromState)
+            @Html.HiddenFor(m => m.FromState)
+            <div id="fromState"></div>
+        </li>
+        <li>
+            @Html.LabelFor(m => m.ToState)
+            @Html.HiddenFor(m => m.ToState)
+            <div id="toState"></div>
+        </li>
+        <li class="fullline">
+            @Html.LabelFor(m => m.AutoTransition)
+            @Html.CheckBoxFor(m => m.AutoTransition)
+        </li>
+        <li class="fullline">
+            @Html.HiddenFor(m => m.WorkflowId)
+            <input type="button" value="Adicionar" onclick="saveStateTransition();" />
+        </li>
+    </ol>       
+</fieldset>
+
+<table id="transitions">
+    <tr class="header">
+        <th>@Html.LabelFor(m => m.Description)</th>
+        <th>@Html.LabelFor(m => m.FromState)</th>
+        <th>@Html.LabelFor(m => m.ToState)</th>
+        <th>@Html.LabelFor(m => m.AutoTransition)</th>
+        <th>Ação</th>
+    </tr>
+    @foreach(var item in Model.TransitionList)
+    {
+        <tr id='tr_@item.Id.ToString()'>
+            <td>@item.Description</td>
+            <td>@item.FromStateDescription</td>
+            <td>@item.ToStateDescription</td>
+            @if (item.AutoTransition)
+            {
+            <td>Sim</td>
+            }
+            else
+            {
+            <td>Não</td>
+            }
+            <td>@Html.ActionLink("Remover", "RemoveStateTransition", new { }, new { onclick = "removeStateTransition('" + item.Id.ToString() + "'); return false;" })</td>
+        </tr>
+    }
+</table>
+
+<script>
+    ddData = [
+        @foreach(var item in Model.StateList)
+        {
+            <text>
+            {
+                text: '@item.Description',
+                value: '@item.Id.ToString()',
+                selected: false,
+                description: '',
+                imageSrc: "../../Images/state.png"
+            },
+            </text>
+        }
+    ];
+
+    $('#fromState').ddslick({
+        data: ddData,
+        width: 400,
+        imagePosition: "left",
+        selectText: "Selecione o Estado Inicial",
+        onSelected: function (data) {
+            $('#@Html.IdFor(m => m.FromState)').val(data.selectedData.value);
+
+            desc = $('#@Html.IdFor(m => m.Description)').val();
+            if (desc != '')
+                desc = ' x ' + desc;
+            $('#@Html.IdFor(m => m.Description)').val(data.selectedData.text + desc);
+        }
+    });
+
+    $('#toState').ddslick({
+        data: ddData,
+        width: 400,
+        imagePosition: "left",
+        selectText: "Selecione o Estado de Transição",
+        onSelected: function (data) {
+            $('#@Html.IdFor(m => m.ToState)').val(data.selectedData.value);
+
+            desc = $('#@Html.IdFor(m => m.Description)').val();
+            if (desc != '')
+                desc = desc + ' x ';
+            $('#@Html.IdFor(m => m.Description)').val(desc + data.selectedData.text);
+        }
+        });
+
+    function removeStateTransition(id)
+    {
+        paramData = { transitionId: id };
+
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/RemoveStateTransition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#tr_' + id).remove();
+            }
+        });
+    }
+
+    function saveStateTransition()
+    {
+        desc = $('#@Html.IdFor(m => m.Description)').val();
+        if (desc == '') {
+            alert('Campo Descrição Obrigatório!');
+            return;
+        }
+        fromId = $('#@Html.IdFor(m => m.FromState)').val();
+        toId = $('#@Html.IdFor(m => m.ToState)').val();
+
+        if (fromId == toId) {
+            alert('A transição não pode ocorrer para o mesmo estado!');
+            return;
+        }
+
+
+        wfId = $('#@Html.IdFor(m => m.WorkflowId)').val();
+
+        auto = $('#@Html.IdFor(m => m.AutoTransition)')[0].checked;
+        var autoDesc;
+
+        if (auto)
+            autoDesc = 'Sim';
+        else
+            autoDesc = 'Não';
+
+        paramData = { description: desc, fromStateId: fromId, toStateId: toId, workflowId: wfId, autoTran: auto };
+
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/AddStateTransition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#transitions').append("<tr id='tr_" + data.Id + "'><td>" + desc + "</td><td>" + $('#fromState').data('ddslick').selectedData.text + "</td><td>" + $('#toState').data('ddslick').selectedData.text + "</td><td>" + autoDesc + "</td><td><a href='#' onclick='removeStateTransition('" + data.Id + "'); return false;'>Remover</a></td></tr>");
+                $('#@Html.IdFor(m => m.Description)').val('');
+                $('#fromState').ddslick('clear');
+                $('#toState').ddslick('clear');
+            }
+        });
+
+    }
+</script>

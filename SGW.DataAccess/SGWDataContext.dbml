@@ -1,0 +1,462 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="AdventureWorks2012" Class="SGWDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=.\SQLEXPRESS;Initial Catalog=AdventureWorks2012;Integrated Security=True" SettingsObjectName="SGW.DataAccess.Properties.Settings" SettingsPropertyName="AdventureWorks2012ConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.SGW_Access" Member="SGW_Accesses">
+    <Type Name="SGW_Access">
+      <Column Name="AccessId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="RecordId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ParticipantId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="EntityType" Type="System.String" DbType="NVarChar(5) NOT NULL" CanBeNull="false" />
+      <Column Name="TableName" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="ReadAccess" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="WriteAccess" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="AdminAccess" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowParticipant_SGW_Access" Member="SGW_WorkflowParticipant" ThisKey="ParticipantId" OtherKey="ParticipantId" Type="SGW_WorkflowParticipant" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkgroupMember" Member="SGW_WorkgroupMembers">
+    <Type Name="SGW_WorkgroupMember">
+      <Column Name="ResourceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="WorkgroupId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Resource_SGW_WorkgroupMember" Member="SGW_Resource" ThisKey="ResourceId" OtherKey="ResourceId" Type="SGW_Resource" IsForeignKey="true" />
+      <Association Name="SGW_Workgroup_SGW_WorkgroupMember" Member="SGW_Workgroup" ThisKey="WorkgroupId" OtherKey="WorkgroupId" Type="SGW_Workgroup" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Attachment" Member="SGW_Attachments">
+    <Type Name="SGW_Attachment">
+      <Column Name="AttachmentId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="EntityInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="StepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="Comments" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="AttachedFile" Type="System.Data.Linq.Binary" DbType="VarBinary(MAX)" CanBeNull="true" UpdateCheck="Never" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_EntityInstance_SGW_Attachment" Member="SGW_EntityInstance" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_EntityInstance" IsForeignKey="true" />
+      <Association Name="SGW_WorkflowStep_SGW_Attachment" Member="SGW_WorkflowStep" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Condition" Member="SGW_Conditions">
+    <Type Name="SGW_Condition">
+      <Column Name="ConditionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="EntityId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Column Name="ConditionType" Type="System.String" DbType="NVarChar(5)" CanBeNull="true" />
+      <Column Name="StoredProcedure" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="SQLCommand" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="GeneratedCommand" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Condition_SGW_ConditionDetail" Member="SGW_ConditionDetails" ThisKey="ConditionId" OtherKey="ConditionId" Type="SGW_ConditionDetail" />
+      <Association Name="SGW_Condition_SGW_Workflow" Member="SGW_Workflows" ThisKey="ConditionId" OtherKey="TriggerConditionId" Type="SGW_Workflow" />
+      <Association Name="SGW_Condition_SGW_WorkflowStepDecisionCondition" Member="SGW_WorkflowStepDecisionConditions" ThisKey="ConditionId" OtherKey="ConditionId" Type="SGW_WorkflowStepDecisionCondition" />
+      <Association Name="SGW_Entity_SGW_Condition" Member="SGW_Entity" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Entity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_ConditionDetail" Member="SGW_ConditionDetails">
+    <Type Name="SGW_ConditionDetail">
+      <Column Name="ConditionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ConditionDetailId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="GroupIdentifier" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="Field" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="Operator" Type="System.String" DbType="NVarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="Value1" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Value2" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Condition_SGW_ConditionDetail" Member="SGW_Condition" ThisKey="ConditionId" OtherKey="ConditionId" Type="SGW_Condition" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Email" Member="SGW_Emails">
+    <Type Name="SGW_Email">
+      <Column Name="EmailId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="EmailSubject" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="EmailBody" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="EmailTo" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Entity" Member="SGW_Entities">
+    <Type Name="SGW_Entity">
+      <Column Name="EntityId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="EntityType" Type="System.String" DbType="NVarChar(1)" CanBeNull="true" />
+      <Column Name="SQLTableName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="StatusFieldName" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="UserDefinedCodeField" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Entity_SGW_Condition" Member="SGW_Conditions" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Condition" />
+      <Association Name="SGW_Entity_SGW_EntityField" Member="SGW_EntityFields" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_EntityField" />
+      <Association Name="SGW_Entity_SGW_EntityInstance" Member="SGW_EntityInstances" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_EntityInstance" />
+      <Association Name="SGW_Entity_SGW_EntityInstanceValue" Member="SGW_EntityInstanceValues" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_EntityInstanceValue" />
+      <Association Name="SGW_Entity_SGW_EntityStatus" Member="SGW_EntityStatus" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_EntityStatus" />
+      <Association Name="SGW_Entity_SGW_Workflow" Member="SGW_Workflows" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Workflow" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_EntityField" Member="SGW_EntityFields">
+    <Type Name="SGW_EntityField">
+      <Column Name="EntityFieldId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="EntityId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="FieldType" Type="System.String" DbType="NVarChar(1) NOT NULL" CanBeNull="false" />
+      <Column Name="UserDefined" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Association Name="SGW_Entity_SGW_EntityField" Member="SGW_Entity" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Entity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_EntityInstance" Member="SGW_EntityInstances">
+    <Type Name="SGW_EntityInstance">
+      <Column Name="EntityId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="EntityInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="CurrentStatus" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="UserDefinedCode" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_EntityInstance_SGW_Attachment" Member="SGW_Attachments" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_Attachment" />
+      <Association Name="SGW_EntityInstance_SGW_EntityInstanceValue" Member="SGW_EntityInstanceValues" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_EntityInstanceValue" />
+      <Association Name="SGW_EntityInstance_SGW_WorkflowInstance" Member="SGW_WorkflowInstances" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_WorkflowInstance" />
+      <Association Name="SGW_EntityInstance_SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowInstanceAssignments" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_WorkflowInstanceAssignment" />
+      <Association Name="SGW_Entity_SGW_EntityInstance" Member="SGW_Entity" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Entity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_EntityInstanceValues" Member="SGW_EntityInstanceValues">
+    <Type Name="SGW_EntityInstanceValue">
+      <Column Name="ValueId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="EntityId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="EntityInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="FieldName" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="DataValue" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="NumberValue" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="TextValue" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="IdValue" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_EntityInstance_SGW_EntityInstanceValue" Member="SGW_EntityInstance" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_EntityInstance" IsForeignKey="true" />
+      <Association Name="SGW_Entity_SGW_EntityInstanceValue" Member="SGW_Entity" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Entity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_EntityStatus" Member="SGW_EntityStatus">
+    <Type Name="SGW_EntityStatus">
+      <Column Name="EntityStatusId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="EntityId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="UserDefinedCode" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Association Name="SGW_EntityStatus_SGW_WorkflowState" Member="SGW_WorkflowStates" ThisKey="EntityStatusId" OtherKey="EntityStatusId" Type="SGW_WorkflowState" />
+      <Association Name="SGW_Entity_SGW_EntityStatus" Member="SGW_Entity" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Entity" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_ErrorLog" Member="SGW_ErrorLogs">
+    <Type Name="SGW_ErrorLog">
+      <Column Name="ErrorId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ProcessName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Resource" Member="SGW_Resources">
+    <Type Name="SGW_Resource">
+      <Column Name="ResourceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="EmailAddress" Type="System.String" DbType="VarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="LoginPassword" Type="System.String" DbType="VarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Resource_SGW_WorkgroupMember" Member="SGW_WorkgroupMembers" ThisKey="ResourceId" OtherKey="ResourceId" Type="SGW_WorkgroupMember" />
+      <Association Name="SGW_Resource_SGW_RoleMember" Member="SGW_RoleMembers" ThisKey="ResourceId" OtherKey="ResourceId" Type="SGW_RoleMember" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Role" Member="SGW_Roles">
+    <Type Name="SGW_Role">
+      <Column Name="RoleId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Role_SGW_RoleMember" Member="SGW_RoleMembers" ThisKey="RoleId" OtherKey="RoleId" Type="SGW_RoleMember" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_RoleMember" Member="SGW_RoleMembers">
+    <Type Name="SGW_RoleMember">
+      <Column Name="ResourceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="RoleId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Resource_SGW_RoleMember" Member="SGW_Resource" ThisKey="ResourceId" OtherKey="ResourceId" Type="SGW_Resource" IsForeignKey="true" />
+      <Association Name="SGW_Role_SGW_RoleMember" Member="SGW_Role" ThisKey="RoleId" OtherKey="RoleId" Type="SGW_Role" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_StepType" Member="SGW_StepTypes">
+    <Type Name="SGW_StepType">
+      <Column Name="StepTypeId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="CommandType" Type="System.String" DbType="VarChar(5) NOT NULL" CanBeNull="false" />
+      <Column Name="StepCommand" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="CommandFile" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="SystemDefined" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="ManualStep" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_StepType_SGW_WorkflowStep" Member="SGW_WorkflowSteps" ThisKey="StepTypeId" OtherKey="StepTypeId" Type="SGW_WorkflowStep" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Workflow" Member="SGW_Workflows">
+    <Type Name="SGW_Workflow">
+      <Column Name="WorkflowId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="Active" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="TriggerConditionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="EntityId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Workflow_SGW_WorkflowState" Member="SGW_WorkflowStates" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_WorkflowState" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStateTransition" Member="SGW_WorkflowStateTransitions" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_WorkflowStateTransition" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStep" Member="SGW_WorkflowSteps" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_WorkflowStep" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStepInstance" Member="SGW_WorkflowStepInstances" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_WorkflowStepInstance" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStepTransition" Member="SGW_WorkflowStepTransitions" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_WorkflowStepTransition" />
+      <Association Name="SGW_Entity_SGW_Workflow" Member="SGW_Entity" ThisKey="EntityId" OtherKey="EntityId" Type="SGW_Entity" IsForeignKey="true" />
+      <Association Name="SGW_Condition_SGW_Workflow" Member="SGW_Condition" ThisKey="TriggerConditionId" OtherKey="ConditionId" Type="SGW_Condition" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowInstance" Member="SGW_WorkflowInstances">
+    <Type Name="SGW_WorkflowInstance">
+      <Column Name="WorkflowInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="WorkflowId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="EntityInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="Completed" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CompletedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="SGW_WorkflowInstance_SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowInstanceAssignments" ThisKey="WorkflowInstanceId" OtherKey="WorkflowInstanceId" Type="SGW_WorkflowInstanceAssignment" />
+      <Association Name="SGW_WorkflowInstance_SGW_WorkflowStepInstance" Member="SGW_WorkflowStepInstances" ThisKey="WorkflowInstanceId" OtherKey="WorkflowInstanceId" Type="SGW_WorkflowStepInstance" />
+      <Association Name="SGW_EntityInstance_SGW_WorkflowInstance" Member="SGW_EntityInstance" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_EntityInstance" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowInstanceAssignments">
+    <Type Name="SGW_WorkflowInstanceAssignment">
+      <Column Name="WorkflowInstanceAssignmentId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="WorkflowStepInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="WorkflowInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="EntityInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="StepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ParticipantId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ParticipantEntity" Type="System.String" DbType="NVarChar(1) NOT NULL" CanBeNull="false" />
+      <Column Name="Mandatory" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowInstance_SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowInstance" ThisKey="WorkflowInstanceId" OtherKey="WorkflowInstanceId" Type="SGW_WorkflowInstance" IsForeignKey="true" />
+      <Association Name="SGW_EntityInstance_SGW_WorkflowInstanceAssignment" Member="SGW_EntityInstance" ThisKey="EntityInstanceId" OtherKey="EntityInstanceId" Type="SGW_EntityInstance" IsForeignKey="true" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowStep" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+      <Association Name="SGW_WorkflowStepInstance_SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowStepInstance" ThisKey="WorkflowStepInstanceId" OtherKey="WorkflowStepInstanceId" Type="SGW_WorkflowStepInstance" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowParticipant" Member="SGW_WorkflowParticipants">
+    <Type Name="SGW_WorkflowParticipant">
+      <Column Name="ParticipantId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="HasResources" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="HasWorkgroups" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="HasRoles" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowParticipant_SGW_Access" Member="SGW_Accesses" ThisKey="ParticipantId" OtherKey="ParticipantId" Type="SGW_Access" />
+      <Association Name="SGW_WorkflowParticipant_SGW_WorkflowParticipantMember" Member="SGW_WorkflowParticipantMembers" ThisKey="ParticipantId" OtherKey="ParticipantId" Type="SGW_WorkflowParticipantMember" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowParticipantMember" Member="SGW_WorkflowParticipantMembers">
+    <Type Name="SGW_WorkflowParticipantMember">
+      <Column Name="ParticipantMemberId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ParticipantId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ResourceId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="WorkgroupId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="RoleId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowParticipant_SGW_WorkflowParticipantMember" Member="SGW_WorkflowParticipant" ThisKey="ParticipantId" OtherKey="ParticipantId" Type="SGW_WorkflowParticipant" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowState" Member="SGW_WorkflowStates">
+    <Type Name="SGW_WorkflowState">
+      <Column Name="WorkflowId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="StateId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="InitialState" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="EntityStatusId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="UILeftPosition" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="UITopPosition" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowState_SGW_WorkflowStateTransition" Member="SGW_WorkflowStateTransitions" ThisKey="StateId" OtherKey="FromStateId" Type="SGW_WorkflowStateTransition" />
+      <Association Name="SGW_WorkflowState_SGW_WorkflowStateTransition1" Member="SGW_WorkflowStateTransitions1" ThisKey="StateId" OtherKey="ToStateId" Type="SGW_WorkflowStateTransition" />
+      <Association Name="SGW_WorkflowState_SGW_WorkflowStep" Member="SGW_WorkflowSteps" ThisKey="StateId" OtherKey="FromStateId" Type="SGW_WorkflowStep" />
+      <Association Name="SGW_EntityStatus_SGW_WorkflowState" Member="SGW_EntityStatus" ThisKey="EntityStatusId" OtherKey="EntityStatusId" Type="SGW_EntityStatus" IsForeignKey="true" />
+      <Association Name="SGW_Workflow_SGW_WorkflowState" Member="SGW_Workflow" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_Workflow" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowStateTransition" Member="SGW_WorkflowStateTransitions">
+    <Type Name="SGW_WorkflowStateTransition">
+      <Column Name="WorkflowId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="FromStateId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ToStateId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="StateTransitionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="AutoTransition" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowState_SGW_WorkflowStateTransition" Member="SGW_WorkflowState" ThisKey="FromStateId" OtherKey="StateId" Type="SGW_WorkflowState" IsForeignKey="true" />
+      <Association Name="SGW_WorkflowState_SGW_WorkflowStateTransition1" Member="SGW_WorkflowState1" ThisKey="ToStateId" OtherKey="StateId" Type="SGW_WorkflowState" IsForeignKey="true" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStateTransition" Member="SGW_Workflow" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_Workflow" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowStep" Member="SGW_WorkflowSteps">
+    <Type Name="SGW_WorkflowStep">
+      <Column Name="WorkflowId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="StepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="StepTypeId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="Comments" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ParticipantId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="NotifyParticipant" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="Initial" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="FromStateId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ToStateId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="JoinDecisionId" Type="System.String" DbType="NVarChar(5)" CanBeNull="true" />
+      <Column Name="UILeftPosition" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="UITopPosition" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="UploadFileType" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Column Name="EmailParticipantId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="EmailSubject" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="EmailBody" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="EmailTo" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="SQLProcedure" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="SQLCommand" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowStep_SGW_Attachment" Member="SGW_Attachments" ThisKey="StepId" OtherKey="StepId" Type="SGW_Attachment" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowInstanceAssignments" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowInstanceAssignment" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepDecisionCondition" Member="SGW_WorkflowStepDecisionConditions" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStepDecisionCondition" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepInstance" Member="SGW_WorkflowStepInstances" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStepInstance" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepManualAction" Member="SGW_WorkflowStepManualActions" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStepManualAction" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepTransition" Member="SGW_WorkflowStepTransitions" ThisKey="StepId" OtherKey="FromStepId" Type="SGW_WorkflowStepTransition" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepTransition1" Member="SGW_WorkflowStepTransitions1" ThisKey="StepId" OtherKey="ToStepId" Type="SGW_WorkflowStepTransition" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepTransitionDecision" Member="SGW_WorkflowStepTransitionDecisions" ThisKey="StepId" OtherKey="FromStepId" Type="SGW_WorkflowStepTransitionDecision" />
+      <Association Name="SGW_WorkflowState_SGW_WorkflowStep" Member="SGW_WorkflowState" ThisKey="FromStateId" OtherKey="StateId" Type="SGW_WorkflowState" IsForeignKey="true" />
+      <Association Name="SGW_StepType_SGW_WorkflowStep" Member="SGW_StepType" ThisKey="StepTypeId" OtherKey="StepTypeId" Type="SGW_StepType" IsForeignKey="true" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStep" Member="SGW_Workflow" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_Workflow" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowStepDecisionCondition" Member="SGW_WorkflowStepDecisionConditions">
+    <Type Name="SGW_WorkflowStepDecisionCondition">
+      <Column Name="DecisionConditionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Code" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Column Name="ConditionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="StepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Association Name="SGW_Condition_SGW_WorkflowStepDecisionCondition" Member="SGW_Condition" ThisKey="ConditionId" OtherKey="ConditionId" Type="SGW_Condition" IsForeignKey="true" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepDecisionCondition" Member="SGW_WorkflowStep" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowStepInstance" Member="SGW_WorkflowStepInstances">
+    <Type Name="SGW_WorkflowStepInstance">
+      <Column Name="WorkflowStepInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="WorkflowInstanceId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="WorkflowId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="StepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="CompletedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="CompletedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Completed" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowStepInstance_SGW_WorkflowInstanceAssignment" Member="SGW_WorkflowInstanceAssignments" ThisKey="WorkflowStepInstanceId" OtherKey="WorkflowStepInstanceId" Type="SGW_WorkflowInstanceAssignment" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepInstance" Member="SGW_WorkflowStep" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+      <Association Name="SGW_WorkflowInstance_SGW_WorkflowStepInstance" Member="SGW_WorkflowInstance" ThisKey="WorkflowInstanceId" OtherKey="WorkflowInstanceId" Type="SGW_WorkflowInstance" IsForeignKey="true" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStepInstance" Member="SGW_Workflow" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_Workflow" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowStepManualAction" Member="SGW_WorkflowStepManualActions">
+    <Type Name="SGW_WorkflowStepManualAction">
+      <Column Name="ManualActionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Code" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(500)" CanBeNull="true" />
+      <Column Name="StepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepManualAction" Member="SGW_WorkflowStep" ThisKey="StepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowStepTransition" Member="SGW_WorkflowStepTransitions">
+    <Type Name="SGW_WorkflowStepTransition">
+      <Column Name="TransitionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="WorkflowId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="FromStepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="ToStepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="FromStateId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepTransition" Member="SGW_WorkflowStep" ThisKey="FromStepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepTransition1" Member="SGW_WorkflowStep1" ThisKey="ToStepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+      <Association Name="SGW_Workflow_SGW_WorkflowStepTransition" Member="SGW_Workflow" ThisKey="WorkflowId" OtherKey="WorkflowId" Type="SGW_Workflow" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_WorkflowStepTransitionDecision" Member="SGW_WorkflowStepTransitionDecisions">
+    <Type Name="SGW_WorkflowStepTransitionDecision">
+      <Column Name="TransitionDecisionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Code" Type="System.String" DbType="NVarChar(200)" CanBeNull="true" />
+      <Column Name="FromStepId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="TransitionId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Association Name="SGW_WorkflowStep_SGW_WorkflowStepTransitionDecision" Member="SGW_WorkflowStep" ThisKey="FromStepId" OtherKey="StepId" Type="SGW_WorkflowStep" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SGW_Workgroup" Member="SGW_Workgroups">
+    <Type Name="SGW_Workgroup">
+      <Column Name="WorkgroupId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ParentWorkgroupId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="NVarChar(200) NOT NULL" CanBeNull="false" />
+      <Column Name="WorkgroupPath" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CreatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="CreatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="UpdatedOn" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="UpdatedBy" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="SGW_Workgroup_SGW_WorkgroupMember" Member="SGW_WorkgroupMembers" ThisKey="WorkgroupId" OtherKey="WorkgroupId" Type="SGW_WorkgroupMember" />
+    </Type>
+  </Table>
+  <Function Name="dbo.SGW_ProcessWorkflow" Method="SGW_ProcessWorkflow">
+    <Parameter Name="WorkflowInstanceId" Parameter="workflowInstanceId" Type="System.Guid" DbType="UniqueIdentifier" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.SGW_ProcessWorkflowStep" Method="SGW_ProcessWorkflowStep">
+    <Parameter Name="WorkflowStepInstanceId" Parameter="workflowStepInstanceId" Type="System.Guid" DbType="UniqueIdentifier" />
+    <Return Type="System.Int32" />
+  </Function>
+  <Function Name="dbo.SGW_StartWorkflows" Method="SGW_StartWorkflows">
+    <Parameter Name="EntityInstanceId" Parameter="entityInstanceId" Type="System.Guid" DbType="UniqueIdentifier" />
+    <Parameter Name="EntityId" Parameter="entityId" Type="System.Guid" DbType="UniqueIdentifier" />
+    <Parameter Name="UserDefinedCode" Parameter="userDefinedCode" Type="System.String" DbType="NVarChar(MAX)" />
+    <Return Type="System.Int32" />
+  </Function>
+</Database>

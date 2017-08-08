@@ -1,0 +1,438 @@
+﻿@model SGW.Portal.Models.WorkflowStepDefinitionModel
+@{
+    Layout = null;
+}
+
+<fieldset>
+    <legend>Dados da Etapa</legend>
+    <ol>
+        <li>
+            @Html.LabelFor(m => m.Description)
+            @Html.TextBoxFor(m => m.Description)
+        </li>
+        <li class="fullline">
+            @Html.LabelFor(m => m.Comments)
+            @Html.TextAreaFor(m => m.Comments)
+        </li>
+        @if (!Model.InitialState)
+        {
+        <li class="fullline">
+            @Html.LabelFor(m => m.JoinDecisionId)
+            @Html.DropDownListFor(m => m.JoinDecisionId, Model.JoinDecisionList, "Selecione", new { style = "width:500px;" })
+        </li>
+        }
+
+        @switch (Model.StepTypeCommand)
+        {
+            case "calc":
+                    <li class="fullline">
+                        <h2>Execução de Lógica SQL</h2>
+                        <br />
+                    </li>                
+                    <li class="fullline">
+                        @Html.LabelFor(m => m.ActionSQLProcedure)
+                        @Html.DropDownListFor(m => m.ActionSQLProcedure, Model.ActionSQLProcedures)
+                    </li>                
+                    <li class="fullline">
+                        @Html.LabelFor(m => m.ActionSQLCommand)
+                        @Html.TextAreaFor(m => m.ActionSQLCommand)                    
+                    </li>                
+                break;
+            case "action":
+                    <li class="fullline">
+                        <h2>Lista de Ações</h2>
+                        <br />
+                    </li>                
+                    <li>
+                        @Html.Label("Descrição")
+                        @Html.TextBox("txtManualActionDesc")                    
+                    </li>                
+                    <li class="fullline">
+                        <input type="button" onclick="addManualAction();" value="Adicionar Ação" />
+                    </li>                
+                    <li class="fullline">
+                        <table id="manualActionContent" style="width:300px;">
+                            <tr class="header">
+                                <th>Descrição</th>
+                                <th>Ação</th>
+                            </tr>
+                            @foreach (var item in Model.ManualActionList)
+                            {
+                            <tr id="ma_@item.Code">
+                                <td>@item.Description</td>
+                                <td>@Html.ActionLink("Remover", "RemoveManualAction", null, new { onclick = string.Format(" removeManualAction('{0}'); return false;", item.Code) })</td>
+                            </tr>
+                            }
+                        </table>                
+                    </li>
+                    <li class="fullline">
+                        <br />
+                        </li>
+                    <script>
+                        function addManualAction() {
+                            paramData = { code: $('#txtManualActionDesc').val(), description: $('#txtManualActionDesc').val(), stepId: '@Model.StepId.ToString()' };
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/AddManualAction",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                error: function (data, errorThrown) {
+                                    alert('request /Workflow/AddManualAction failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#manualActionContent').append('<tr><td>' + $('#txtManualActionDesc').val() + '</td><td><a href="#" onclick="removeManualAction(\'' + $('#txtManualActionDesc').val() + '\')">Remover</a></td></tr>');
+                                    $('#ddlTranCode').append('<option value="' + $('#txtManualActionDesc').val() + '">' + $('#txtManualActionDesc').val() + '</option>');
+                                }
+                            });                    
+                        }
+                        function removeManualAction(code) {
+
+                            paramData = { code: code, stepId: '@Model.StepId.ToString()' };
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/RemoveManualAction",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                error: function (data, errorThrown) {
+                                    alert('request /Workflow/RemoveManualAction failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#manualActionContent #ma_' + code).remove();
+                                    $('#ddlTranCode option[value="' + code + '"]').remove();
+                                }
+                            });
+                        }
+                    </script>
+                            break;
+            case "upload":
+                    <li class="fullline">
+                        <h2>Upload de Arquivo</h2>
+                        <br />
+                    </li>                
+                    <li class="fullline">
+                        @Html.LabelFor(m => m.UploadFileType)
+                        @Html.TextBoxFor(m => m.UploadFileType)                    
+                    </li>                
+                    <li class="fullline">
+                        <label class="tip"> Ex: *.txt|*.doc</label>
+                    </li>                
+                            break;
+            case "decision":
+                    <li class="fullline">
+                        <h2>Decisão Automática</h2>
+                        <br />
+                    </li>                
+                            if (Model.EditMode)
+                            {
+                            <li class="fullline">
+                                @Html.Hidden("txtDecisionConditionDesc")
+                                @Html.Hidden("txtDecisionConditionId")
+                                <input type="button" value="Adicionar Condição" onclick="selectCondition();" />
+                                @Html.ActionLink("Editar Condições", "ConditionList", "Condition", null, new { target = "_blank" })
+                            </li>
+                            }
+
+                    <li class="fullline">
+                        <table id="conditionContent" style="width:300px;">
+                            <tr class="header">
+                                <th>Condição</th>
+                                <th>Ação</th>
+                            </tr>
+                            @foreach (var item in Model.DecisionConditionList)
+                            {
+                            <tr id="sc_@item.Code">
+                                <td>@item.Description</td>
+                                <td>@Html.ActionLink("Remover", "RemoveCondition", null, new { onclick = string.Format(" removeCondition('{0}'); return false;", item.Code) })</td>
+                            </tr>
+                            }
+                        </table>                
+                    </li>
+                    <li class="fullline">
+                        <br />
+                        </li>
+                    <script>
+                        function addCondition() {
+                            paramData = { code: $('#txtDecisionConditionDesc').val(), description: $('#txtDecisionConditionDesc').val(), conditionId: $('#txtDecisionConditionId').val(), stepId: '@Model.StepId.ToString()' };
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/AddDecisionCondition",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                error: function (data, errorThrown) {
+                                    alert('request /Workflow/AddDecisionCondition failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#conditionContent').append('<tr id="sc_' + $('#txtDecisionConditionDesc').val() + '"><td>' + $('#txtDecisionConditionDesc').val() + '</td><td><a href="#" onclick="removeCondition(\'' + $('#txtDecisionConditionDesc').val() + '\'); return false;">Remover</a></td></tr>')
+                                    $('#ddlTranCode').append('<option value="' + $('#txtDecisionConditionDesc').val() + 'Verdadeiro">' + $('#txtDecisionConditionDesc').val() + 'Verdadeiro</option>');
+                                    $('#ddlTranCode').append('<option value="' + $('#txtDecisionConditionDesc').val() + 'Falso">' + $('#txtDecisionConditionDesc').val() + 'Falso</option>');
+                                }
+                            });
+                        }
+                        function removeCondition(code) {
+
+                            paramData = { code: code, stepId: '@Model.StepId.ToString()' };
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/RemoveDecisionCondition",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                error: function (data, errorThrown) {
+                                    alert('request /Workflow/RemoveDecisionCondition failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#conditionContent #sc_' + code).remove();
+                                    $('#ddlTranCode option[value="' + code + 'Verdadeiro"]').remove();
+                                    $('#ddlTranCode option[value="' + code + 'Falso"]').remove();
+                                }
+                            });
+                        }
+                    </script>
+                            break;
+            case "notify":
+                    <li class="fullline">
+                        <h2>Email de Notificação</h2>
+                        <br />
+                    </li>
+                    <li>
+                        @Html.LabelFor(m => m.EmailParticipantId)
+                        @Html.DropDownListFor(m => m.EmailParticipantId, Model.ParticipantList.Select(o => new SelectListItem() { Text = o.Description, Value = o.Id.ToString() }), "Selecione", new { })
+                    </li>                
+                    <li>
+                        @Html.LabelFor(m => m.EmailTo)
+                        @Html.TextBoxFor(m => m.EmailTo)                    
+                    </li>                
+                    <li class="fullline">
+                        @Html.LabelFor(m => m.EmailSubject)
+                        @Html.TextBoxFor(m => m.EmailSubject)                    
+                    </li>                
+                    <li class="fullline">
+                        @Html.LabelFor(m => m.EmailBody)
+                        @Html.TextAreaFor(m => m.EmailBody)
+                    </li>                            
+                            break;
+        }
+        @if (Model.StepTypeCommand.Equals("upload") || Model.StepTypeCommand.Equals("action"))
+        {
+        <li class="fullline">
+            @Html.LabelFor(m => m.ParticipantId)
+            @Html.DropDownListFor(m => m.ParticipantId, Model.ParticipantList.Select(o => new SelectListItem() { Text =  o.Description, Value = o.Id.ToString() }), "Selecione", new { style = "width:500px;" })
+        </li>
+        }
+        @if (Model.StepTypeCommand.Equals("action") || Model.StepTypeCommand.Equals("decision"))
+        {
+                    <li class="fullline">
+                        <h2>Decisão de Transição</h2>
+                        <br />
+                    </li>
+                    <li>
+                        @Html.Label("Resultado da Etapa")
+                        @Html.DropDownList("ddlTranCode", Model.TransitionCodeList, "Selecione")                    
+                    </li>                
+                    <li>
+                        @Html.Label("Transição")
+                        @Html.DropDownList("ddlTran", Model.TransitionList, "Selecione")                    
+                    </li>                
+                    <li class="fullline">
+                        <input type="button" onclick="addTranDecision();" value="Adicionar Decisão" />
+                    </li>                
+                    <li class="fullline">
+                        <table id="tranDecisionContent" style="width:700px;">
+                            <tr class="header">
+                                <th>Resultado</th>
+                                <th>Transição</th>
+                                <th>Ação</th>
+                            </tr>
+                            @foreach (var item in Model.TransitionDecisionList)
+                            {
+                            <tr id="sd_@item.Code">
+                                <td>@item.Code</td>
+                                <td>@item.Description</td>
+                                <td>@Html.ActionLink("Remover", "RemoveTranDecision", null, new { onclick = string.Format(" removeTranDecision('{0}'); return false;", item.Code) })</td>
+                            </tr>
+                            }
+                        </table>                
+                    </li>
+                    <li class="fullline">
+                        <br />
+                        </li>
+                    <script>
+                        function addTranDecision() {
+                            paramData = { code: $('#ddlTranCode').val(), description: $('#ddlTran option:selected').text(), transitionId: $('#ddlTran').val(), stepId: '@Model.StepId.ToString()' };
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/AddTranDecision",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                error: function (data, errorThrown) {
+                                    alert('request /Workflow/AddTranDecision failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#tranDecisionContent').append('<tr id="sd_' + $('#ddlTranCode').val() + '"><td>' + $('#ddlTranCode').val() + '</td><td>' + $('#ddlTran option:selected').text() + '</td><td><a href="#" onclick="removeTranDecision("' + $('#ddlTranCode').val() + '"); return false;">Remover</a></td></tr>')
+                                }
+                            });
+                        }
+                        function removeTranDecision(code) {
+
+                            paramData = { code: code, stepId: '@Model.StepId.ToString()' };
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/Workflow/RemoveTranDecision",
+                                data: JSON.stringify(paramData),
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                error: function (data, errorThrown) {
+                                    alert('request /Workflow/RemoveTranDecision failed :' + errorThrown);
+                                },
+                                success: function (data) {
+                                    $('#tranDecisionContent #sd_' + code).remove();
+                                }
+                            });
+                        }
+                    </script>
+        }
+
+            @Html.HiddenFor(m => m.StepId)
+            @Html.HiddenFor(m => m.InitialState)
+            @Html.HiddenFor(m => m.Left)
+            @Html.HiddenFor(m => m.Top)
+            @Html.HiddenFor(m => m.FromStateId)
+            @Html.HiddenFor(m => m.StepTypeId)
+            @Html.HiddenFor(m => m.EntityId)
+            @Html.HiddenFor(m => m.StepName)
+            @Html.HiddenFor(m => m.WorkflowId)
+    </ol>       
+</fieldset>
+
+<div id="selectCondition" title="Selecionar Condição" style="background-color:white;">
+</div>
+
+<script>
+
+    function onSaveStepDefinition() {
+
+        if ($('#stepDefinition #@Html.IdFor(m => m.Description)').val() == '') {
+            alert('Campo Descrição Obrigatório!');
+            return false;
+        }
+
+        stepId = $('#stepDefinition #@Html.IdFor(m => m.StepId)').val();
+        stepName = $('#stepDefinition #@Html.IdFor(m => m.StepName)').val();
+        initial = $('#stepDefinition #@Html.IdFor(m => m.InitialState)')[0].checked;
+    
+        paramData = { 
+            leftPos: $('#stepDefinition #@Html.IdFor(m => m.Left)').val(), 
+            topPos: $('#stepDefinition #@Html.IdFor(m => m.Top)').val(), 
+            description: $('#stepDefinition #@Html.IdFor(m => m.Description)').val(), 
+            workflowId: $('#stepDefinition #@Html.IdFor(m => m.WorkflowId)').val(), 
+            fromStateId: $('#stepDefinition #@Html.IdFor(m => m.FromStateId)').val(), 
+            stepId: stepId, 
+            comments: $('#stepDefinition #@Html.IdFor(m => m.Comments)').val(), 
+            joinDecision: $('#stepDefinition #@Html.IdFor(m => m.JoinDecisionId)').val(), 
+            participantId: $('#stepDefinition #@Html.IdFor(m => m.ParticipantId)').val(), 
+            stepTypeId: $('#stepDefinition #@Html.IdFor(m => m.StepTypeId)').val(), 
+            initialState: initial,         
+            emailBody: $('#stepDefinition #@Html.IdFor(m => m.EmailBody)').val(),
+            emailSubject: $('#stepDefinition #@Html.IdFor(m => m.EmailSubject)').val(),
+            emailTo: $('#stepDefinition #@Html.IdFor(m => m.EmailTo)').val(),
+            emailParticipant: $('#stepDefinition #@Html.IdFor(m => m.EmailParticipantId)').val(),
+            sqlProcedure: $('#stepDefinition #@Html.IdFor(m => m.ActionSQLProcedure)').val(),
+            sqlcommand: $('#stepDefinition #@Html.IdFor(m => m.ActionSQLCommand)').val(),
+            uploadFileType: $('#stepDefinition #@Html.IdFor(m => m.UploadFileType)').val(),
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/AddStep",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            error: function (data, errorThrown) {
+                alert('request /Workflow/AddStep failed :' + errorThrown);
+                if (stepId == '00000000-0000-0000-0000-000000000000')
+                    $('#' + stepName).remove();
+            },
+            success: function (data) {
+                if (stepId == '00000000-0000-0000-0000-000000000000') {
+                    stepId = data.Id;
+                    if (stepId != '00000000-0000-0000-0000-000000000000') {
+                        $('#' + stepName).attr("id", 'step_' + stepId);
+                        $('#step_' + stepId + ' label')[0].innerText = $('#stepDefinition #@Html.IdFor(m => m.Description)').val();
+                        if (initial)
+                            $('#step_' + stepId + ' img')[0].src = "../Images/initialState.png";
+
+                        addTransition();
+                    }
+                    else {
+                        alert(data.Message);
+                        $('#' + stepName).remove();
+                    }
+                }
+                else {
+                    $('#step_' + stepId + ' label')[0].innerText = $('#stepDefinition #@Html.IdFor(m => m.Description)').val();
+                    if (initial)
+                        $('#step_' + stepId + ' img')[0].src = "../Images/initialState.png";
+                }
+            }
+        });
+
+        return true;
+    }
+
+    function selectCondition() {
+
+        var entityId = '@Model.EntityId.ToString()';
+
+        paramData = { entityId: entityId };
+        $.ajax({
+            type: "POST",
+            url: "/Condition/GetConditions",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#selectCondition').html(data);
+
+                $('#selectCondition').dialog({
+                    autoOpen: false,
+                    height: 600,
+                    width: 950,
+                    modal: true,
+                    buttons:
+                    {
+                        "Selecionar": function () {
+                            conditionId = $('#selectCondition #txtConditionId').val();
+                            if (conditionId != '') {
+                                $('#txtDecisionConditionId').val($('#selectCondition #txtConditionId').val());
+                                $('#txtDecisionConditionDesc').val($('#selectCondition #txtConditionDesc').val());
+                                addCondition();
+                            }
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+
+                $('#selectCondition').dialog('open');
+            }
+        });
+    }
+
+    $('#selectCondition').dialog({
+        autoOpen: false,
+    });
+
+</script>

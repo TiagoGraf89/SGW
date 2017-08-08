@@ -1,0 +1,5 @@
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Database\bin\Debug\SGW.Database.dacpac
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Database\bin\Debug\SGW.Database.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Database\bin\Debug\SGW.Database.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Database\obj\Debug\SGW.Database.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.Database\obj\Debug\SGW.Database.pdb

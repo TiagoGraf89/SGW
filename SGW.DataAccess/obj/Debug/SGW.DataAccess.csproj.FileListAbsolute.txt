@@ -1,0 +1,16 @@
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\obj\Debug\SGW.DataAccess.csprojResolveAssemblyReference.cache
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\SGW.DataAccess.dll.config
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\SGW.DataAccess.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\SGW.DataAccess.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\SGW.Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\bin\Debug\SGW.Common.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\obj\Debug\SGW.DataAccess.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\DataAccess\obj\Debug\SGW.DataAccess.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\bin\Debug\SGW.DataAccess.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\bin\Debug\SGW.DataAccess.dll.config
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\bin\Debug\SGW.Common.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\bin\Debug\SGW.Common.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\obj\Debug\SGW.DataAccess.csprojResolveAssemblyReference.cache
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\obj\Debug\SGW.DataAccess.dll
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\obj\Debug\SGW.DataAccess.pdb
+C:\Users\Tiago_graf\Documents\SENAC\TCC\SGW\SGW.DataAccess\bin\Debug\SGW.DataAccess.pdb

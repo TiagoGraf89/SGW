@@ -1,0 +1,124 @@
+﻿@using SGW.Common.DataContract;
+@using SGW.Common.Extender;
+
+@model SGW.Portal.Models.WorkgroupRoleListModel
+@{
+    ViewBag.Title = "Configurações";
+    ViewBag.Message = "Grupos e Cargos.";
+}
+
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+@Html.AntiForgeryToken()
+@Html.ValidationSummary(true)
+
+<h2>Adicionar Cargo</h2>
+@using (Html.BeginForm("AddRole", "ResourceConfiguration", Model, FormMethod.Post, null))
+{
+    
+    <fieldset>
+        <legend>Cargo</legend>
+        <ol>
+            <li class="fullline">
+                @Html.HiddenFor(m => m.RoleId)
+                @Html.LabelFor(m => m.RoleDescription)
+                @Html.TextBoxFor(m => m.RoleDescription)
+            </li>
+            <li class="fullline">
+                <input type="submit" value="Salvar" />
+            </li>
+        </ol>
+    </fieldset>
+
+}
+<h2>Lista de Cargos</h2>
+@{
+    IEnumerable<RoleDataContract> roles = Model.Roles;
+    
+    <table>
+        <tr class="header">
+            <th>Descrição Cargo</th>
+            <th>Ação</th>
+        </tr>
+    @foreach (var role in roles)
+    {
+        <tr>
+            <td style="width:750px;"><strong>@role.Name</strong></td>
+            <td>
+                @Html.ActionLink("Alterar", "WorkgroupRoleEdit", "ResourceConfiguration", new { op = SGW.Portal.Controllers.ResourceConfigurationController.WorkgroupRoleOperation.Role, entityId = role.Id }, null)
+                @Html.ActionLink("Deletar", 
+                                "WorkgroupRoleDelete", 
+                                "ResourceConfiguration", 
+                                new { op = SGW.Portal.Controllers.ResourceConfigurationController.WorkgroupRoleOperation.Role, entityId = role.Id }, 
+                                new { onclick = "return confirm('Você deseja realmente excluir esse Cargo?');" })
+            </td>
+        </tr>
+    }
+    </table>
+}
+
+<br />
+<br />
+<br />
+
+<h2>Adicionar Grupo</h2>
+@using (Html.BeginForm("AddWorkgroup", "ResourceConfiguration", Model, FormMethod.Post, null))
+{
+    
+    <fieldset>
+        <legend>Grupo</legend>
+        <ol>
+            <li>
+                @Html.HiddenFor(m => m.WorkgroupId)
+                @Html.LabelFor(m => m.WorkgroupDescription)
+                @Html.TextBoxFor(m => m.WorkgroupDescription)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.ParentWorkgroupId)
+                @Html.DropDownListFor(m => m.ParentWorkgroupId, Model.WorkgroupsListItem)
+            </li>
+            <li class="fullline">
+                <input type="submit" value="Salvar" />
+            </li>
+        </ol>
+    </fieldset>
+
+}
+<h2>Lista de Grupos</h2>
+@{
+    IEnumerable<WorkgroupDataContract> wgs = Model.Workgroups;
+    string prefix = "";
+    <table>
+        <tr class="header">
+            <th>Descrição Grupo</th>
+            <th>Ação</th>
+        </tr>
+    @foreach (var wg in wgs)
+    {
+        int level = SGW.Common.Extender.StringHelper.GetCharCount(wg.Path, '.');       
+        if (level == 0)
+        {
+            prefix = "";
+        }
+        else
+        {
+            prefix = string.Format("╚{0}>", "══".PadRight(level * 2, '═'));
+        }
+        <tr>
+            <td style="width:750px;"><strong>@string.Format("{0}{1}",prefix,wg.Name)</strong></td>
+            <td>
+                @Html.ActionLink("Alterar", "WorkgroupRoleEdit", "ResourceConfiguration", new { op = SGW.Portal.Controllers.ResourceConfigurationController.WorkgroupRoleOperation.Workgroup, entityId = wg.Id }, null)
+                @Html.ActionLink("Deletar", 
+                                "WorkgroupRoleDelete", 
+                                "ResourceConfiguration", 
+                                new { op = SGW.Portal.Controllers.ResourceConfigurationController.WorkgroupRoleOperation.Workgroup, entityId = wg.Id }, 
+                                new { onclick = "return confirm('Você deseja realmente excluir esse Grupo e seus filhos?');" })
+            </td>
+        </tr>
+    }
+    </table>
+}

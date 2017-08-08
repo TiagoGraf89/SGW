@@ -1,0 +1,66 @@
+﻿@model SGW.Portal.Models.EntityInstanceModel
+@{
+    ViewBag.Title = "Instância da Entidade";
+}
+
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+</hgroup>
+
+<section id="actionForm">
+    <fieldset>
+        <legend>Etapa Manual</legend>
+        <ol>
+            <li class="fullline">
+                @Html.LabelFor(m => m.UserDefinedId)
+                @Html.TextBoxFor(m => m.UserDefinedId, new { @readonly = "true", @class = "readonly" })
+            </li>
+            <li>
+                @Html.LabelFor(m => m.Entity)
+                @Html.TextBoxFor(m => m.Entity, new { @readonly = "true", @class = "readonly" })
+            </li>
+            <li>
+                @Html.LabelFor(m => m.CurrentStatus)
+                @Html.TextBoxFor(m => m.CurrentStatus, new { @readonly = "true", @class = "readonly" })
+            </li>
+            <li class="fullline">
+                <label>Anexos</label>
+            </li>
+                @foreach (var item in Model.AttachedFiles)
+                {
+                <li>
+                    @Html.ActionLink(item.Value, "DownloadAttachment", "Action", new { attachmentId = item.Key }, null)
+                </li>
+                }
+        </ol>
+        
+    </fieldset>
+
+    <table>
+        <tr class="header">
+            <th>Campo</th>
+            <th>Valor</th>
+        </tr>
+        @foreach (var item in Model.Values)
+        {
+            <tr>
+                <td>@item.FieldName</td>
+                @if (item.IdValue.HasValue)
+                {
+                <td>@item.IdValue.Value.ToString()</td>
+                } else if (item.DateValue.HasValue)
+                {
+                <td>@item.DateValue.Value.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                } else if (item.NumberValue.HasValue)
+                {
+                <td>@item.NumberValue.Value.ToString("#0.00")</td>
+                }
+                else
+                {
+                <td>@item.TextValue</td>
+                }                
+            </tr>
+        }
+    </table>
+</section>

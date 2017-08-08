@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "Lista de Workflows";
+    IEnumerable<SGW.Common.DataContract.ResourceDataContract> resources = ViewBag.ResourceList;
+
+    <h2>Lista de Usuários.</h2>
+    @Html.ActionLink("Criar Novo Usuário", "EditResource", "ResourceConfiguration", new { resourceId = Guid.Empty }, null)
+    
+    <br />    
+    <table>
+        <tr class="header">
+            <th>Nome do Usuário</th>
+            <th>Ativo?</th>
+            <th>Ação</th>
+        </tr>
+
+    @if (resources.Count() == 0) {
+        <tr>
+            <td>Nenhum item na lista.</td>
+            <td></td>
+            <td></td>
+        </tr>
+    }         
+    @foreach (var item in resources)
+    {
+        <tr>
+            <td>@item.Description</td>
+            <td>@if (item.Active) { 
+                       <label>Ativo</label>
+                   }
+                   else 
+                   { 
+                       <label>Não Ativo</label>
+                   }
+                </td>
+            <td>
+                @Html.ActionLink("Alterar", "EditResource", "ResourceConfiguration", new { resourceId = item.Id }, null)
+            </td>
+        </tr>
+    }
+    </table>}
+

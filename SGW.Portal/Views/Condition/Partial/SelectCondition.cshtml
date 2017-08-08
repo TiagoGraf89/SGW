@@ -1,0 +1,34 @@
+﻿@model List<SGW.Portal.Models.ConditionModel>
+@{
+    Layout = null;
+}
+
+<table id="selectConditionContainer">
+<tr class="header">
+    <th>Nome da Condição</th>
+    <th>Tipo</th>
+    <th>Ação</th>
+</tr>
+@foreach (var item in Model)
+{
+    <tr id="row_@item.Id.ToString()" entityId="@item.EntityId.ToString()" 
+        onmouseover = "$(this).css({'background-color': 'lightGray' });"
+                onmouseout = "$(this).css({'background-color':''});" >
+        <td>@item.Name</td>
+        <td>@item.ConditionType</td>
+        <td>@Html.ActionLink("Selecionar", "Select", null, new { onclick = string.Format("markCondition('{1}','{0}', '{2}', $(this)); return false;", item.ConditionDisplayText.Replace("'","\""), item.Id.ToString(), item.Name) })</td>
+    </tr>
+}
+</table>
+<script>
+    function markCondition(id, text, desc, obj) {
+        $('#txtConditionText').val(text);
+        $('#txtConditionId').val(id);
+        $('#txtConditionDesc').val(desc);
+        $('#selectConditionContainer tr[class!="header"]').removeClass("selected");
+        $('#row_' + id).addClass("selected");
+    }
+</script>
+@Html.Hidden("txtConditionId")
+@Html.Hidden("txtConditionDesc")
+@Html.TextArea("txtConditionText", new { @readonly = "true", @class = "readonly" })

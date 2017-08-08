@@ -1,0 +1,157 @@
+﻿@model SGW.Portal.Models.WorkflowStepTransitionDefinitionModel
+@{
+    Layout = null;
+}
+
+<fieldset>
+    <legend>Transição de Etapas</legend>
+    <ol>
+        <li class="fullline">
+            @Html.LabelFor(m => m.Description)
+            @Html.TextBoxFor(m => m.Description)
+        </li>
+        <li>
+            @Html.LabelFor(m => m.FromStepId)
+            @Html.HiddenFor(m => m.FromStepId)
+            <div id="fromStep"></div>
+        </li>
+        <li>
+            @Html.LabelFor(m => m.ToStepId)
+            @Html.HiddenFor(m => m.ToStepId)
+            <div id="toStep"></div>
+        </li>
+        <li class="fullline">
+            @Html.HiddenFor(m => m.WorkflowId)
+            <input type="button" value="Adicionar" onclick="saveStepTransition();" />
+        </li>
+    </ol>       
+</fieldset>
+
+<table id="transitions">
+    <tr class="header">
+        <th>@Html.LabelFor(m => m.Description)</th>
+        <th>@Html.LabelFor(m => m.FromStepDescription)</th>
+        <th>@Html.LabelFor(m => m.ToStepDescription)</th>
+        <th>Ação</th>
+    </tr>
+    @foreach(var item in Model.TransitionList)
+    {
+        <tr id='tr_@item.Id.ToString()'>
+            <td>@item.Description</td>
+            <td>@item.FromStepDescription</td>
+            <td>@item.ToStepDescription</td>
+            <td>@Html.ActionLink("Remover", "RemoveStepTransition", new { }, new { onclick = "removeStepTransition('" + item.Id.ToString() + "'); return false;" })</td>
+        </tr>
+    }
+</table>
+
+<script>
+    var ddData = [
+        @foreach(var item in Model.StepList)
+        {
+            <text>
+            {
+                text: '@item.Description',
+                value: '@item.Id.ToString()',
+                selected: false,
+                description: '',
+                @if (item.Initial)
+                {
+                    @:imageSrc: "../Images/initialState.png",
+                }
+                else
+                {
+                    @:imageSrc: "../Images/@item.StepType.StepCommand" + "Step.png",
+                }
+            },
+            </text>
+        }
+        ]
+
+    $('#fromStep').ddslick({
+        data: ddData,
+        width: 400,
+        imagePosition: "left",
+        selectText: "Selecione a Etapa Inicial",
+        onSelected: function (data) {
+            $('#@Html.IdFor(m => m.FromStepId)').val(data.selectedData.value);
+            desc = $('#@Html.IdFor(m => m.Description)').val();
+            if (desc != '')
+                desc = ' x ' + desc;
+            $('#@Html.IdFor(m => m.Description)').val(data.selectedData.text + desc);
+        }
+    });
+
+    $('#toStep').ddslick({
+        data: ddData,
+        width: 400,
+        imagePosition: "left",
+        selectText: "Selecione a Etapa de Transição",
+        onSelected: function (data) {
+            $('#@Html.IdFor(m => m.ToStepId)').val(data.selectedData.value);
+
+            desc = $('#@Html.IdFor(m => m.Description)').val();
+            if (desc != '')
+                desc = desc + ' x ';
+            $('#@Html.IdFor(m => m.Description)').val(desc + data.selectedData.text);
+        }
+    });
+
+    function removeStepTransition(id)
+    {
+        paramData = { transitionId: id };
+
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/RemoveStepTransition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#tr_' + id).remove();
+            }
+        });
+    }
+
+    function saveStepTransition()
+    {
+        desc = $('#@Html.IdFor(m => m.Description)').val();
+        if (desc == '') {
+            alert('Campo Descrição Obrigatório!');
+            return;
+        }
+        fromId = $('#@Html.IdFor(m => m.FromStepId)').val();
+        toId = $('#@Html.IdFor(m => m.ToStepId)').val();
+
+        if (fromId == toId) {
+            alert('A transição não pode ocorrer para a mesma etapa!');
+            return;
+        }
+
+
+        wfId = $('#@Html.IdFor(m => m.WorkflowId)').val();
+
+        paramData = { description: desc, fromStepId: fromId, toStepId: toId, workflowId: wfId};
+
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/AddStepTransition",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            error: function (data, errorThrown) {
+                alert('request failed :' + errorThrown);
+            },
+            success: function (data) {
+                $('#transitions').append("<tr id='tr_" + data.Id + "'><td>" + desc + "</td><td>" + $('#fromStep').data('ddslick').selectedData.text + "</td><td>" + $('#toStep').data('ddslick').selectedData.text + "</td><td><a href='#' onclick='removeStepTransition('" + data.Id + "'); return false;'>Remover</a></td></tr>");
+                $('#@Html.IdFor(m => m.Description)').val('');
+                $('#fromStep').ddslick('clear');
+                $('#toStep').ddslick('clear');
+            }
+        });
+
+    }
+</script>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/SGWServices" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/SGWServices" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:56738/EntityService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="EntityDataContract">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Data" nillable="true" type="tns:ArrayOfEntityValueDataContract" />
+      <xs:element minOccurs="0" name="EntityId" type="ser:guid" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EntityDataContract" nillable="true" type="tns:EntityDataContract" />
+  <xs:complexType name="ArrayOfEntityValueDataContract">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="EntityValueDataContract" nillable="true" type="tns:EntityValueDataContract" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfEntityValueDataContract" nillable="true" type="tns:ArrayOfEntityValueDataContract" />
+  <xs:complexType name="EntityValueDataContract">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Field" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Value" nillable="true" type="xs:anyType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EntityValueDataContract" nillable="true" type="tns:EntityValueDataContract" />
+</xs:schema>

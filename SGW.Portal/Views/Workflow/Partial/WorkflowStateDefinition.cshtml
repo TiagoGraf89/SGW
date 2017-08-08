@@ -1,0 +1,92 @@
+﻿@model SGW.Portal.Models.WorkflowStateDefinitionModel
+@{
+    Layout = null;
+}
+
+<fieldset>
+    <legend>Estado</legend>
+    <ol>
+        <li>
+            @Html.HiddenFor(m => m.StateId)
+            @Html.LabelFor(m => m.Description)
+            @Html.TextBoxFor(m => m.Description)
+        </li>
+        <li>
+            @Html.LabelFor(m => m.EntityStatusId)
+            @Html.DropDownListFor(m => m.EntityStatusId, Model.EntityStatusList, "Selecione")
+        </li>
+        <li class="fullline">
+            @Html.LabelFor(m => m.InitialState)
+            @Html.CheckBoxFor(m => m.InitialState)
+        </li>
+        <li class="fullline">
+            @Html.HiddenFor(m => m.Left)
+            @Html.HiddenFor(m => m.Top)
+            @Html.HiddenFor(m => m.StateName)
+            @Html.HiddenFor(m => m.WorkflowId)
+        </li>
+    </ol>       
+</fieldset>
+
+
+<script>
+    $('#@Html.IdFor(m => m.EntityStatusId)').change(function () {
+        $('#@Html.IdFor(m => m.Description)').val($('#@Html.IdFor(m => m.EntityStatusId) option:selected').text());
+    });
+
+    function onSaveStateDefinition() {
+
+        if ($('#stateDefinition #@Html.IdFor(m => m.Description)').val() == '') {
+            alert('Campo Descrição Obrigatório!');
+            return false;
+        }
+
+        stateId = $('#stateDefinition #@Html.IdFor(m => m.StateId)').val();
+        stateName = $('#stateDefinition #@Html.IdFor(m => m.StateName)').val();
+        entityStatusId = $('#stateDefinition #@Html.IdFor(m => m.EntityStatusId)').val();
+        initial = $('#stateDefinition #@Html.IdFor(m => m.InitialState)')[0].checked;
+        paramData = { leftPos: $('#stateDefinition #@Html.IdFor(m => m.Left)').val(), topPos: $('#stateDefinition #@Html.IdFor(m => m.Top)').val(), description: $('#stateDefinition #@Html.IdFor(m => m.Description)').val(), workflowId: $('#stateDefinition #@Html.IdFor(m => m.WorkflowId)').val(), entityStatusId: entityStatusId, stateId: $('#stateDefinition #@Html.IdFor(m => m.StateId)').val(), initialState: initial };
+
+        $.ajax({
+            type: "POST",
+            url: "/Workflow/AddState",
+            data: JSON.stringify(paramData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            async: false,
+            error: function (data, errorThrown) {
+                alert('request /Workflow/AddState failed :' + errorThrown);
+                if (stateId == '')
+                    $('#' + stateName).remove();
+            },
+            success: function (data) {
+                if (stateId == '00000000-0000-0000-0000-000000000000') {
+                    stateId = data.Id;
+                    if (stateId != '00000000-0000-0000-0000-000000000000') {
+                        $('#' + stateName).attr("id", 'state_' + stateId);
+                        $('#state_' + stateId + ' label')[0].innerText = $('#stateDefinition #@Html.IdFor(m => m.Description)').val();
+
+                        if (initial)
+                            $('#state_' + stateId + ' img')[0].src = "../Images/initialState.png";
+
+                        addTransition();
+                    }
+                    else {
+                        alert(data.Message);
+                        $('#' + stateName).remove();
+                    }
+                }
+                else {
+                    $('#state_' + stateId + ' label')[0].innerText = $('#stateDefinition #@Html.IdFor(m => m.Description)').val();
+                    if (initial)
+                        $('#state_' + stateId + ' img')[0].src = "../Images/initialState.png";
+                    else
+                        $('#state_' + stateId + ' img')[0].src = "../Images/state.png";
+                }
+            }
+        });
+
+        return true;
+    }
+
+</script>

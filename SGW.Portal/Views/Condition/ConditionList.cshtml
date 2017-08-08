@@ -1,0 +1,34 @@
+﻿@{
+    ViewBag.Title = "Lista de Condições";
+    IEnumerable<SGW.Portal.Models.ConditionModel> list = ViewBag.ConditionList;
+
+    <h2>@ViewBag.Title</h2>
+    @Html.ActionLink("Criar Nova Condição", "EditCondition", "Condition", new { conditionId = Guid.Empty }, null)
+    <table>
+        <tr class="header">
+            <th>Nome da Condição</th>
+            <th>Tipo</th>
+            <th>Entidade</th>
+            <th>Ação</th>
+        </tr>
+    @if (list.Count() == 0)
+    {
+        <tr>
+            <td>Nenhum Item na lista.</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    }
+
+    @foreach (var item in list)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.ConditionType</td>
+            <td>@item.EntityDesciption</td>
+            <td>@Html.ActionLink("Alterar", "EditCondition", "Condition", new { conditionId = item.Id }, null)</td>
+        </tr>
+    }
+    </table>
+}

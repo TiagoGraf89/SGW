@@ -1,0 +1,56 @@
+﻿@using SGW.Common;
+
+@{
+    ViewBag.Title = "Configurações";
+}
+
+<hgroup class="title">
+    <h1>@ViewBag.Title.</h1>
+    <h2>@ViewBag.Message</h2>
+</hgroup>
+
+<section class="contact">
+    <header>
+    </header>
+    <fieldset>
+        <legend>Configurações</legend>
+        <ol>
+            <li class="fullline">
+                <h3>Grupos e Usuários</h3>
+            </li>
+            @if (!SGW.Common.SessionData.IsAdmin)
+            {
+            <li class="fullline">
+                @Html.ActionLink("Dados do Usuário", "EditResource", "ResourceConfiguration", new { resourceId = SessionData.ResourceId }, null)
+            </li>
+            }
+            else
+            {
+            <li class="fullline">
+                @Html.ActionLink("Usuários", "ResourceList", "ResourceConfiguration")
+            </li>
+            <li class="fullline">
+                @Html.ActionLink("Grupos e Cargos","WorkgroupRoleList","ResourceConfiguration")
+            </li>
+            <li class="fullline">
+                <h3>Entidades e Critérios</h3>
+            </li>
+            <li class="fullline">
+                @Html.ActionLink("Entidades", "Index", "Entity")
+            </li>
+            <li class="fullline">
+                @Html.ActionLink("Critérios/Condições", "ConditionList", "Condition")
+            </li>
+            }
+            <li class="fullline">
+                <h3>Workflows</h3>
+            </li>
+            <li class="fullline">
+                @Html.ActionLink("Workflows","WorkflowList","Workflow")
+            </li>
+            <li class="fullline">
+                @Html.ActionLink("Instâncias de Entidades", "EntityInstanceList", "Action")
+            </li>
+        </ol>       
+    </fieldset>
+</section>

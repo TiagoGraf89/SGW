@@ -1,0 +1,43 @@
+﻿@{
+    ViewBag.Title = "Lista de Workflows";
+    IEnumerable<SGW.Common.DataContract.WorkflowDataContract> workflows = ViewBag.WorkflowList;
+
+    <h2>Lista de Workflows.</h2>
+    @Html.ActionLink("Criar Novo Workflow", "WorkflowConfiguration", "Workflow", new { workflowId = Guid.Empty }, null)
+    @Html.ActionLink("Alterar Definições de Acesso", "WorkflowAccessConfiguration", "Workflow", new { workflowId = Guid.NewGuid() }, null)
+    <table>
+        <tr class="header">
+            <th>Nome do Workflow</th>
+            <th>Entidade</th>
+            <th>Ativo?</th>
+            <th>Ação</th>
+        </tr>
+
+    @if (workflows.Count() == 0) {
+        <tr>
+            <td>Nenhum item na lista.</td>
+            <td></td>
+            <td></td>
+        </tr>
+    }         
+    @foreach (var item in workflows)
+    {
+        <tr>
+            <td>@item.Description</td>
+            <td>@item.EntityDescription</td>
+            <td>@if (item.Active) { 
+                       <label>Ativo</label>
+                   }
+                   else 
+                   { 
+                       <label>Não Ativo</label>
+                   }
+                </td>
+            <td>
+                @Html.ActionLink("Alterar", "WorkflowConfiguration", "Workflow", new { workflowId = item.Id }, null)
+                @Html.ActionLink("Etapas do Workflow", "WorkflowTransitionDetail", "Workflow", new { workflowId = item.Id }, null)
+            </td>
+        </tr>
+    }
+    </table>}
+
